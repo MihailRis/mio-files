@@ -1,7 +1,8 @@
 # MIO-Files
 File subsystem created for Zendes2.5.
 
-IODevice - base device interface
+IODevice - base device interface.
+
 Implementations:
 - ResDevice (internal files) - uses jarDir (inside of .jar) if program run from .jar else uses localDir
 - DirDevice (directory) - creates IODevice with selected directory as filesystem root
