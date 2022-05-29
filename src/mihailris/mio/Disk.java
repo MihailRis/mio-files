@@ -48,6 +48,10 @@ public class Disk {
         }
     }
 
+    public static void addDevice(String label, IODevice device){
+        devices.put(label, device);
+    }
+
     public static void removeDevice(String label){
         devices.remove(label);
     }
