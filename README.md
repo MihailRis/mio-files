@@ -4,9 +4,9 @@ File subsystem created for [Zendes2.5](https://mihailris.itch.io/zendes25).
 IODevice - base device interface.
 
 Implementations:
-- ResDevice (internal files) - uses jarDir (inside of .jar) if program run from .jar else uses localDir
+- ResDevice (internal files) - uses jarDir (inside of .jar) if program run from jar-file else uses localDir
 - DirDevice (directory) - creates IODevice with selected directory as filesystem root
-- AbsDevice (external files) - used only for work with external files ('abs:' is not allowed by IOPath.get, use Disk.absolute)
+- AbsDevice (external files) - used only for work with external files ('abs:' is not allowed by IOPath.get, use Disk.absolute instead)
 
 Example of initialization:
 ```java
