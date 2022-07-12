@@ -1,15 +1,18 @@
 # MIO-Files
-File subsystem created for Zendes2.5.
+File subsystem created for [Zendes2.5](https://mihailris.itch.io/zendes25).
 
-IODevice - base device (paths root) interface
+IODevice - base device interface.
+
 Implementations:
-- ResDevice (internal files) - uses jarDir if program run from .jar else uses localDir
+- ResDevice (internal files) - uses jarDir (inside of .jar) if program run from jar-file else uses localDir
 - DirDevice (directory) - creates IODevice with selected directory as filesystem root
-- AbsDevice (external files) - used only for work with external files ('abs:' is not allowed by IOPath.get, use Disk.absolute)
+- AbsDevice (external files) - used only for work with external files ('abs:' is not allowed by IOPath.get, use Disk.absolute instead)
 
 Example of initialization:
 ```java
 Disk.initialize();
+// right here Disk has no any pre-defined IODevice added
+// you need to configure it yourself
 Disk.createResDevice("res", "res"); // creates ResDevice
 Disk.createDirDevice("user", new File(gameDir)); // creates DirDevice from given directory
 ```
