@@ -49,7 +49,16 @@ public class Disk {
     }
 
     public static void addDevice(String label, IODevice device){
+        addDevice(label, device, false);
+    }
+
+    public static void addDevice(String label, IODevice device, boolean makedir){
         devices.put(label, device);
+        if (makedir) {
+            IOPath root = IOPath.get(label+':');
+            if (!root.isDirectory())
+                root.mkdirs();
+        }
     }
 
     public static void removeDevice(String label){
@@ -221,8 +230,6 @@ public class Disk {
         }
     }
 
-
-
     /**
      * Unzip all content from ZIP file to destination directory.
      * Tries to delete unpacked files on exception
@@ -279,5 +286,9 @@ public class Disk {
         }
         zis.closeEntry();
         zis.close();
+    }
+
+    public static boolean hasDevice(String label) {
+        return devices.containsKey(label);
     }
 }
