@@ -2,10 +2,7 @@ package mihailris.mio;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -74,9 +71,13 @@ public class Disk {
     }
 
     public static void createDirDevice(String label, File directory){
+        createDirDevice(label, directory, true);
+    }
+
+    public static void createDirDevice(String label, File directory, boolean makedir){
         if (!directory.isDirectory())
             throw new IllegalArgumentException(directory+" is not a directory");
-        devices.put(label, new DirDevice(directory));
+        addDevice(label, new DirDevice(directory), makedir);
     }
 
     public static IOPath absolute(String path){
@@ -182,6 +183,13 @@ public class Disk {
     public static String readString(IOPath iopath, String charset) throws IOException {
         byte[] bytes = readBytes(iopath);
         return new String(bytes, charset);
+    }
+
+    public static void read(Properties properties, IOPath iopath) throws IOException {
+        onEvent(READ, iopath);
+        try (InputStream input = read(iopath)) {
+            properties.load(input);
+        }
     }
 
     public static boolean isExist(IOPath iopath) {

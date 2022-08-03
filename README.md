@@ -29,6 +29,12 @@ Reading bytes array:
 byte[] bytes = Disk.readBytes(IOPath.get("res:colomaps/lights.cm"));
 ```
 
+Reading properties:
+```java
+Properties properties = new Properties();
+Disk.read(properties, IOPath.get("res:engine_settings.properties"));
+```
+
 Write string:
 ```java
 // 'user' device is added with Disk.createDirDevice("user", new File(...));
