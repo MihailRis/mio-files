@@ -75,7 +75,7 @@ public class Disk {
     }
 
     public static void createDirDevice(String label, File directory, boolean makedir){
-        if (!directory.isDirectory())
+        if (!directory.isDirectory() && !makedir)
             throw new IllegalArgumentException(directory+" is not a directory");
         addDevice(label, new DirDevice(directory), makedir);
     }
