@@ -18,9 +18,9 @@ public class Disk {
 
     private static DiskListener listener;
 
-    public static void initialize(){
-        String className = Disk.class.getName().replace('.', '/');
-        String classJar = Disk.class.getResource("/"+className+".class").toString();
+    public static void initialize(Class<?> cls){
+        String className = cls.getName().replace('.', '/');
+        String classJar = cls.getResource("/"+className+".class").toString();
         isjar = classJar.startsWith("jar:");
 
         separator = System.getProperty("file.separator");
