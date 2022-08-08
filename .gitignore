@@ -1,0 +1,6 @@
+out
+target
+*.class
+*.log
+*.jar
+hs_err_pid*
