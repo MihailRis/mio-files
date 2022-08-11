@@ -16,7 +16,7 @@ public class Disk {
     public static long totalWrite;
     private static final Map<String, IODevice> devices = new HashMap<>();
 
-    private static DiskListener listener;
+    private static Set<DiskListener> listeners = new HashSet<>();
 
     public static void initialize(Class<?> cls){
         String className = cls.getName().replace('.', '/');
@@ -26,20 +26,25 @@ public class Disk {
         separator = System.getProperty("file.separator");
     }
 
-    public static void setListener(DiskListener listener) {
-        Disk.listener = listener;
+    public static void addListener(DiskListener listener) {
+        listeners.add(listener);
+    }
+
+    public static void removeListener(DiskListener listener){
+        listeners.remove(listener);
     }
 
     private static void onEvent(DiskListener.DiskEvent event, IOPath path){
-        if (listener != null){
+        for (DiskListener listener : listeners){
             listener.onEvent(event, path, null);
         }
     }
 
     private static void onFail(DiskListener.DiskEvent event, IOPath path, String comment, IOException error){
-        if (listener != null){
+        for (DiskListener listener : listeners){
             listener.onFail(event, path, comment, error);
-        } else {
+        }
+        {
             System.err.println("MIO-Disk operation failed ["+event+"]: "+path+" ("+comment+")");
             error.printStackTrace();
         }
@@ -158,8 +163,7 @@ public class Disk {
 
     public static byte[] readBytes(IOPath iopath) throws IOException {
         onEvent(READ, iopath);
-        InputStream input = read(iopath);
-        try {
+        try (InputStream input = read(iopath)) {
             byte[] bytes = new byte[input.available()];
             int read;
             for (int pos = 0; pos < bytes.length; pos += read) {
@@ -170,8 +174,6 @@ public class Disk {
             }
             totalRead += bytes.length;
             return bytes;
-        } finally {
-            input.close();
         }
     }
 
