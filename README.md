@@ -10,7 +10,7 @@ Implementations:
 
 Example of initialization:
 ```java
-Disk.initialize();
+Disk.initialize(Main.class); // use any class instead of Main in the same .jar as the application
 // right here Disk has no any pre-defined IODevice added
 // you need to configure it yourself
 Disk.createResDevice("res", "res"); // creates ResDevice
