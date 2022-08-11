@@ -15,8 +15,8 @@ public class Disk {
     public static long totalRead;
     public static long totalWrite;
     private static final Map<String, IODevice> devices = new HashMap<>();
-
-    private static Set<DiskListener> listeners = new HashSet<>();
+    private static final Set<DiskListener> listeners = new HashSet<>();
+    private static final Map<String, Set<DiskListener>> labelsListeners = new HashMap<>();
 
     public static void initialize(Class<?> cls){
         String className = cls.getName().replace('.', '/');
@@ -30,6 +30,10 @@ public class Disk {
         listeners.add(listener);
     }
 
+    public static void addListener(String label, DiskListener listener) {
+        labelsListeners.computeIfAbsent(label, k -> new HashSet<>()).add(listener);
+    }
+
     public static void removeListener(DiskListener listener){
         listeners.remove(listener);
     }
@@ -38,11 +42,25 @@ public class Disk {
         for (DiskListener listener : listeners){
             listener.onEvent(event, path, null);
         }
+        String label = path.getPrefix();
+        Set<DiskListener> labelListeners = labelsListeners.get(label);
+        if (labelListeners != null){
+            for (DiskListener listener : labelListeners){
+                listener.onEvent(event, path, null);
+            }
+        }
     }
 
     private static void onFail(DiskListener.DiskEvent event, IOPath path, String comment, IOException error){
         for (DiskListener listener : listeners){
             listener.onFail(event, path, comment, error);
+        }
+        String label = path.getPrefix();
+        Set<DiskListener> labelListeners = labelsListeners.get(label);
+        if (labelListeners != null){
+            for (DiskListener listener : labelListeners){
+                listener.onFail(event, path, comment, error);
+            }
         }
         {
             System.err.println("MIO-Disk operation failed ["+event+"]: "+path+" ("+comment+")");
@@ -65,6 +83,7 @@ public class Disk {
 
     public static void removeDevice(String label){
         devices.remove(label);
+        labelsListeners.remove(label);
     }
 
     public static void createResDevice(String localDir, String jarDir){
