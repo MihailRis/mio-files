@@ -320,4 +320,12 @@ public class Disk {
     public static boolean hasDevice(String label) {
         return devices.containsKey(label);
     }
+
+    public static long length(IOPath path) {
+        try {
+            return getDevice(path.getPrefix(), false).length(path.getPath());
+        } catch (IOException e) {
+            return -1;
+        }
+    }
 }

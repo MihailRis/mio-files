@@ -9,6 +9,7 @@ public interface IODevice {
     boolean isReadonly();
     InputStream read(String path) throws IOException;
     OutputStream write(String path, boolean append) throws IOException;
+    long length(String path);
     IOPath[] listDir(IOPath path);
     long modificationDate(String path);
     boolean exists(String path);

@@ -30,8 +30,24 @@ public class ResDevice implements IODevice {
     }
 
     @Override
-    public OutputStream write(String path, boolean append) throws IOException {
+    public OutputStream write(String path, boolean append) {
         return null;
+    }
+
+    @Override
+    public long length(String path) {
+        if (Disk.isJar()){
+            URL url = Disk.class.getResource(jarDir+"/"+path);
+            if (url == null)
+                return -1;
+            try {
+                return url.openConnection().getContentLengthLong();
+            } catch (IOException e) {
+                return -1;
+            }
+        } else {
+            return new File(localDir, path).length();
+        }
     }
 
     @Override
@@ -75,6 +91,8 @@ public class ResDevice implements IODevice {
     public long modificationDate(String path) {
         if (Disk.isJar()) {
             URL url = Disk.class.getResource(jarDir+"/"+path);
+            if (url == null)
+                return -1;
             try {
                 return url.openConnection().getLastModified();
             } catch (IOException e) {
@@ -98,7 +116,12 @@ public class ResDevice implements IODevice {
     public boolean isFile(String path) {
         if (Disk.isJar()){
             try {
-                return Disk.class.getResource("/res/"+path) != null && Disk.class.getResourceAsStream("/res/"+path).available() > 0;
+                InputStream input = Disk.class.getResourceAsStream("/res/"+path);
+                if (input == null)
+                    return false;
+                boolean isfile = input.available() > 0;
+                input.close();
+                return isfile;
             } catch (IOException e) {
                 return false;
             }
@@ -111,7 +134,12 @@ public class ResDevice implements IODevice {
     public boolean isDirectory(String path) {
         if (Disk.isJar()){
             try {
-                return Disk.class.getResource("/res/"+path) != null && Disk.class.getResourceAsStream("/res/"+path).available() == 0;
+                InputStream input = Disk.class.getResourceAsStream("/res/"+path);
+                if (input == null)
+                    return false;
+                boolean isdir = input.available() == 0;
+                input.close();
+                return isdir;
             } catch (IOException e) {
                 return false;
             }

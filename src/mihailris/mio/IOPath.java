@@ -54,13 +54,14 @@ public class IOPath {
     }
 
     public IOPath parent(){
+        String path = this.path;
         int index = path.lastIndexOf('/');
         if (index == -1){
             path = getPrefix();
         } else {
             path = path.substring(0, index);
         }
-        return this;
+        return IOPath.get(path);
     }
 
     public boolean isExists(){
@@ -77,12 +78,10 @@ public class IOPath {
 
     public static IOPath get(String path) {
         IOPath iopath = new IOPath(path);
-        switch (iopath.getPrefix()){
-            case "abs":
-                throw new IllegalArgumentException("absolute paths are not allowed, use Disk.absolute(..)");
-            default:
-                return iopath;
+        if ("abs".equals(iopath.getPrefix())) {
+            throw new IllegalArgumentException("absolute paths are not allowed, use Disk.absolute(..)");
         }
+        return iopath;
     }
 
     public String name() {
@@ -177,6 +176,10 @@ public class IOPath {
         if (!isExists())
             return false;
         return Disk.delete(this);
+    }
+
+    public long length() {
+        return Disk.length(this);
     }
 
     public void mkdirs() {

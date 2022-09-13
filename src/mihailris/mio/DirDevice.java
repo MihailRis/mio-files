@@ -28,6 +28,11 @@ public class DirDevice implements IODevice {
     }
 
     @Override
+    public long length(String path) {
+        return getFile(path).length();
+    }
+
+    @Override
     public IOPath[] listDir(IOPath path) {
         String[] names = new File(directory, path.getPath()).list();
         if (names == null)

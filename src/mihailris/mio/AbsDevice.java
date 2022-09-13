@@ -10,7 +10,7 @@ public class AbsDevice implements IODevice {
 
     @Override
     public InputStream read(String path) throws IOException {
-        return new FileInputStream(new File(path));
+        return new FileInputStream(path);
     }
 
     @Override
@@ -19,6 +19,11 @@ public class AbsDevice implements IODevice {
         if (!file.isFile())
             file.createNewFile();
         return new FileOutputStream(file, append);
+    }
+
+    @Override
+    public long length(String path) {
+        return getFile(path).length();
     }
 
     @Override
