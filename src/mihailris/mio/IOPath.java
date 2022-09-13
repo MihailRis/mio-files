@@ -69,7 +69,7 @@ public class IOPath {
     }
 
     public long getLastModification(){
-        return Disk.modificationDate(this);
+        return Disk.lastModified(this);
     }
 
     public IOPath cpy(){
@@ -182,8 +182,8 @@ public class IOPath {
         return Disk.length(this);
     }
 
-    public void mkdirs() {
-        Disk.mkdirs(this);
+    public boolean mkdirs() {
+        return Disk.mkdirs(this);
     }
 
     public void deleteTree() throws IOException {

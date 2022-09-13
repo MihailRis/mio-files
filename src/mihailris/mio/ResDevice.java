@@ -88,7 +88,7 @@ public class ResDevice implements IODevice {
     }
 
     @Override
-    public long modificationDate(String path) {
+    public long lastModified(String path) {
         if (Disk.isJar()) {
             URL url = Disk.class.getResource(jarDir+"/"+path);
             if (url == null)
@@ -104,7 +104,7 @@ public class ResDevice implements IODevice {
     }
 
     @Override
-    public boolean setModificationDate(String path, long timestamp) {
+    public boolean setLastModified(String path, long timestamp) {
         if (Disk.isJar()) {
             return false;
         }

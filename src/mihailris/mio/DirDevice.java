@@ -48,12 +48,12 @@ public class DirDevice implements IODevice {
     }
 
     @Override
-    public long modificationDate(String path) {
+    public long lastModified(String path) {
         return new File(directory, path).lastModified();
     }
 
     @Override
-    public boolean setModificationDate(String path, long timestamp) {
+    public boolean setLastModified(String path, long timestamp) {
         return new File(directory, path).setLastModified(timestamp);
     }
 

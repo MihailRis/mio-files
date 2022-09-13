@@ -9,6 +9,7 @@ import java.util.zip.ZipInputStream;
 
 import static mihailris.mio.DiskListener.DiskEvent.*;
 
+@SuppressWarnings("unused")
 public class Disk {
     private static boolean isjar;
     private static String separator;
@@ -135,14 +136,13 @@ public class Disk {
             output.write(content);
             output.close();
             totalWrite += content.length;
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw new RuntimeException(e);
-        }
-        finally {
+        } finally {
             try {
-                if (output != null)
+                if (output != null) {
                     output.close();
+                }
             } catch (IOException e){
                 e.printStackTrace();
             }
@@ -157,11 +157,19 @@ public class Disk {
         writeBytes(path, content.getBytes(), append);
     }
 
-    public static long modificationDate(IOPath iopath){
+    public static long lastModified(IOPath iopath){
         try {
-            return getDevice(iopath.getPrefix(), true).modificationDate(iopath.getPath());
+            return getDevice(iopath.getPrefix(), true).lastModified(iopath.getPath());
         } catch (IOException e) {
             return -1;
+        }
+    }
+
+    public static boolean setLastModified(IOPath iopath, long lastModified){
+        try {
+            return getDevice(iopath.getPrefix(), true).setLastModified(iopath.getPath(), lastModified);
+        } catch (IOException e) {
+            return false;
         }
     }
 
@@ -233,9 +241,16 @@ public class Disk {
     }
 
     public static boolean isFile(IOPath iopath) {
-        onEvent(MKDIRS, iopath);
         try {
             return getDevice(iopath.getPrefix(), true).isFile(iopath.getPath());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static boolean isLink(IOPath iopath) {
+        try {
+            return getDevice(iopath.getPrefix(), true).isLink(iopath.getPath());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -326,7 +341,7 @@ public class Disk {
 
     public static long length(IOPath path) {
         try {
-            return getDevice(path.getPrefix(), false).length(path.getPath());
+            return getDevice(path.getPrefix(), true).length(path.getPath());
         } catch (IOException e) {
             return -1;
         }

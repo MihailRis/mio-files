@@ -11,8 +11,8 @@ public interface IODevice {
     OutputStream write(String path, boolean append) throws IOException;
     long length(String path);
     IOPath[] listDir(IOPath path);
-    long modificationDate(String path);
-    boolean setModificationDate(String path, long timestamp);
+    long lastModified(String path);
+    boolean setLastModified(String path, long timestamp);
     boolean exists(String path);
     boolean isFile(String path);
     boolean isDirectory(String path);
