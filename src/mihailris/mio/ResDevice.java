@@ -104,6 +104,14 @@ public class ResDevice implements IODevice {
     }
 
     @Override
+    public boolean setModificationDate(String path, long timestamp) {
+        if (Disk.isJar()) {
+            return false;
+        }
+        return new File(localDir, path).setLastModified(timestamp);
+    }
+
+    @Override
     public boolean exists(String path) {
         if (Disk.isJar()){
             return Disk.class.getResource("/res/"+path) != null;
@@ -145,6 +153,19 @@ public class ResDevice implements IODevice {
             }
         } else {
             return new File("res/" + path).isDirectory();
+        }
+    }
+
+    @Override
+    public boolean isLink(String path) {
+        if (Disk.isJar()){
+            return false;
+        }
+        File file = new File(localDir, path);
+        try {
+            return !file.getCanonicalPath().equals(file.getAbsolutePath());
+        } catch (IOException e) {
+            return false;
         }
     }
 

@@ -12,9 +12,11 @@ public interface IODevice {
     long length(String path);
     IOPath[] listDir(IOPath path);
     long modificationDate(String path);
+    boolean setModificationDate(String path, long timestamp);
     boolean exists(String path);
     boolean isFile(String path);
     boolean isDirectory(String path);
+    boolean isLink(String path);
     boolean mkdirs(String path);
     boolean delete(String path);
     File getFile(String path);

@@ -45,6 +45,11 @@ public class AbsDevice implements IODevice {
     }
 
     @Override
+    public boolean setModificationDate(String path, long timestamp) {
+        return new File(path).setLastModified(timestamp);
+    }
+
+    @Override
     public boolean exists(String path) {
         return new File(path).exists();
     }
@@ -57,6 +62,11 @@ public class AbsDevice implements IODevice {
     @Override
     public boolean isDirectory(String path) {
         return new File(path).isDirectory();
+    }
+
+    @Override
+    public boolean isLink(String path) {
+        return false;
     }
 
     @Override

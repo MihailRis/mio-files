@@ -1,6 +1,7 @@
 package mihailris.mio;
 
 import java.io.*;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.zip.ZipEntry;
@@ -20,7 +21,9 @@ public class Disk {
 
     public static void initialize(Class<?> cls){
         String className = cls.getName().replace('.', '/');
-        String classJar = cls.getResource("/"+className+".class").toString();
+        URL url = cls.getResource("/"+className+".class");
+        assert (url != null);
+        String classJar = url.toString();
         isjar = classJar.startsWith("jar:");
 
         separator = System.getProperty("file.separator");

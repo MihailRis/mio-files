@@ -22,8 +22,10 @@ public class DirDevice implements IODevice {
     @Override
     public OutputStream write(String path, boolean append) throws IOException {
         File file = getFile(path);
-        if (!file.isFile())
+        if (!file.isFile()) {
+            //noinspection ResultOfMethodCallIgnored
             file.createNewFile();
+        }
         return new FileOutputStream(file, append);
     }
 
@@ -51,6 +53,11 @@ public class DirDevice implements IODevice {
     }
 
     @Override
+    public boolean setModificationDate(String path, long timestamp) {
+        return new File(directory, path).setLastModified(timestamp);
+    }
+
+    @Override
     public boolean exists(String path) {
         return new File(directory, path).exists();
     }
@@ -63,6 +70,16 @@ public class DirDevice implements IODevice {
     @Override
     public boolean isDirectory(String path) {
         return new File(directory, path).isDirectory();
+    }
+
+    @Override
+    public boolean isLink(String path) {
+        File file = new File(directory, path);
+        try {
+            return !file.getCanonicalPath().equals(file.getAbsolutePath());
+        } catch (IOException e) {
+            return false;
+        }
     }
 
     @Override
