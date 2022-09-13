@@ -7,17 +7,23 @@ import java.io.OutputStream;
 
 public interface IODevice {
     boolean isReadonly();
-    InputStream read(String path) throws IOException;
+
+    // Modification methods
     OutputStream write(String path, boolean append) throws IOException;
-    long length(String path);
+    boolean setLastModified(String path, long lastModified);
+    boolean mkdirs(String path);
+    boolean delete(String path);
+
+    // Read methods
+    InputStream read(String path) throws IOException;
     IOPath[] listDir(IOPath path);
+    long length(String path);
     long lastModified(String path);
-    boolean setLastModified(String path, long timestamp);
     boolean exists(String path);
     boolean isFile(String path);
     boolean isDirectory(String path);
     boolean isLink(String path);
-    boolean mkdirs(String path);
-    boolean delete(String path);
+
+    // Special
     File getFile(String path);
 }

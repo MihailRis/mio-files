@@ -104,11 +104,11 @@ public class ResDevice implements IODevice {
     }
 
     @Override
-    public boolean setLastModified(String path, long timestamp) {
+    public boolean setLastModified(String path, long lastModified) {
         if (Disk.isJar()) {
             return false;
         }
-        return new File(localDir, path).setLastModified(timestamp);
+        return new File(localDir, path).setLastModified(lastModified);
     }
 
     @Override

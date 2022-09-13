@@ -53,8 +53,8 @@ public class DirDevice implements IODevice {
     }
 
     @Override
-    public boolean setLastModified(String path, long timestamp) {
-        return new File(directory, path).setLastModified(timestamp);
+    public boolean setLastModified(String path, long lastModified) {
+        return new File(directory, path).setLastModified(lastModified);
     }
 
     @Override

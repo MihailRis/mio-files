@@ -45,8 +45,8 @@ public class AbsDevice implements IODevice {
     }
 
     @Override
-    public boolean setLastModified(String path, long timestamp) {
-        return new File(path).setLastModified(timestamp);
+    public boolean setLastModified(String path, long lastModified) {
+        return new File(path).setLastModified(lastModified);
     }
 
     @Override

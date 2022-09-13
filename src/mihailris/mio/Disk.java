@@ -257,6 +257,7 @@ public class Disk {
     }
 
     public static boolean mkdirs(IOPath iopath) {
+        onEvent(MKDIRS, iopath);
         try {
             return getDevice(iopath.getPrefix(), false).mkdirs(iopath.getPath());
         } catch (IOException e) {
