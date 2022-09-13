@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Objects;
 
+@SuppressWarnings({"UnusedReturnValue", "unused"})
 public class IOPath {
     private String path;
     IOPath(String path){

@@ -66,7 +66,12 @@ public class AbsDevice implements IODevice {
 
     @Override
     public boolean isLink(String path) {
-        return false;
+        File file = new File(path);
+        try {
+            return !file.getCanonicalPath().equals(file.getAbsolutePath());
+        } catch (IOException e) {
+            return false;
+        }
     }
 
     @Override

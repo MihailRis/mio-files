@@ -3,7 +3,7 @@ package mihailris.mio;
 import java.io.*;
 import java.net.URL;
 
-public class ResDevice implements IODevice {
+public class ResDevice extends IODeviceAdapter {
     private final String localDir;
     private final String jarDir;
 
@@ -27,11 +27,6 @@ public class ResDevice implements IODevice {
         } else {
             return new FileInputStream(new File(localDir, path));
         }
-    }
-
-    @Override
-    public OutputStream write(String path, boolean append) {
-        return null;
     }
 
     @Override
@@ -100,7 +95,7 @@ public class ResDevice implements IODevice {
                 return -1;
             }
         }
-        return new File(localDir+"/"+path).lastModified();
+        return new File(localDir, path).lastModified();
     }
 
     @Override
@@ -116,7 +111,7 @@ public class ResDevice implements IODevice {
         if (Disk.isJar()){
             return Disk.class.getResource("/res/"+path) != null;
         } else {
-            return new File("res/" + path).exists();
+            return new File(localDir, path).exists();
         }
     }
 
@@ -134,7 +129,7 @@ public class ResDevice implements IODevice {
                 return false;
             }
         } else {
-            return new File("res/" + path).isFile();
+            return new File(localDir, path).isFile();
         }
     }
 
@@ -152,7 +147,7 @@ public class ResDevice implements IODevice {
                 return false;
             }
         } else {
-            return new File("res/" + path).isDirectory();
+            return new File(localDir, path).isDirectory();
         }
     }
 
@@ -167,20 +162,5 @@ public class ResDevice implements IODevice {
         } catch (IOException e) {
             return false;
         }
-    }
-
-    @Override
-    public boolean mkdirs(String path) {
-        return false;
-    }
-
-    @Override
-    public boolean delete(String path) {
-        return false;
-    }
-
-    @Override
-    public File getFile(String path) {
-        return null;
     }
 }
