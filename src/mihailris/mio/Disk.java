@@ -30,6 +30,16 @@ public class Disk {
         separator = System.getProperty("file.separator");
     }
 
+    public static void close(){
+        for (IODevice device : devices.values()){
+            try {
+                device.close();
+            } catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+    }
+
     public static void addListener(DiskListener listener) {
         listeners.add(listener);
     }
@@ -173,7 +183,7 @@ public class Disk {
         }
     }
 
-    public static IOPath[] iopathsList(IOPath iopath) {
+    public static IOPath[] list(IOPath iopath) {
         onEvent(LIST, iopath);
         try {
             return getDevice(iopath.getPrefix(), true).listDir(iopath);
@@ -248,6 +258,10 @@ public class Disk {
         }
     }
 
+    /**
+     * @param iopath path
+     * @return true if iopath points to symlink
+     */
     public static boolean isLink(IOPath iopath) {
         try {
             return getDevice(iopath.getPrefix(), true).isLink(iopath.getPath());
@@ -265,6 +279,10 @@ public class Disk {
         }
     }
 
+    /**
+     * @param iopath path of file, symlink or empty directory
+     * @return true if deleted anything
+     */
     public static boolean delete(IOPath iopath) throws IOException {
         onEvent(DELETE, iopath);
         return getDevice(iopath.getPrefix(), false).delete(iopath.getPath());

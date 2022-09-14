@@ -3,7 +3,7 @@ package mihailris.mio;
 import java.io.IOException;
 
 public interface DiskListener {
-    public enum DiskEvent {
+    enum DiskEvent {
         READ,
         WRITE,
         DELETE,

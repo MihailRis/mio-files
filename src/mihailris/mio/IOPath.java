@@ -161,7 +161,7 @@ public class IOPath {
     }
 
     public void emptyDirectory() throws IOException {
-        IOPath[] paths = Disk.iopathsList(this);
+        IOPath[] paths = Disk.list(this);
         if (paths == null)
             return;
         for (IOPath path : paths){

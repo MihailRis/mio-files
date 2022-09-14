@@ -1,12 +1,10 @@
 package mihailris.mio;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 
-public interface IODevice {
+public interface IODevice extends Closeable {
     boolean isReadonly();
+    long getUsableSpace(String path);
 
     // Modification methods
     OutputStream write(String path, boolean append) throws IOException;

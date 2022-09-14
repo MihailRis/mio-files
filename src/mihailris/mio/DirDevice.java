@@ -2,7 +2,7 @@ package mihailris.mio;
 
 import java.io.*;
 
-public class DirDevice implements IODevice {
+public class DirDevice extends IODeviceAdapter {
     final File directory;
 
     public DirDevice(File directory) {
@@ -12,6 +12,11 @@ public class DirDevice implements IODevice {
     @Override
     public boolean isReadonly() {
         return false;
+    }
+
+    @Override
+    public long getUsableSpace(String path) {
+        return new File(directory, path).getUsableSpace();
     }
 
     @Override

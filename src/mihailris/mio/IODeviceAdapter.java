@@ -12,6 +12,11 @@ public class IODeviceAdapter implements IODevice {
     }
 
     @Override
+    public long getUsableSpace(String path) {
+        return 0;
+    }
+
+    @Override
     public OutputStream write(String path, boolean append) throws IOException {
         return null;
     }
@@ -74,5 +79,9 @@ public class IODeviceAdapter implements IODevice {
     @Override
     public File getFile(String path) {
         return null;
+    }
+
+    @Override
+    public void close() throws IOException {
     }
 }

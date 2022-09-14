@@ -2,10 +2,18 @@ package mihailris.mio;
 
 import java.io.*;
 
+/**
+ * Absolute paths device works with whole filesystem
+ */
 public class AbsDevice implements IODevice {
     @Override
     public boolean isReadonly() {
         return false;
+    }
+
+    @Override
+    public long getUsableSpace(String path) {
+        return new File(path).getUsableSpace();
     }
 
     @Override
@@ -16,8 +24,10 @@ public class AbsDevice implements IODevice {
     @Override
     public OutputStream write(String path, boolean append) throws IOException {
         File file = getFile(path);
-        if (!file.isFile())
+        if (!file.isFile()) {
+            //noinspection ResultOfMethodCallIgnored
             file.createNewFile();
+        }
         return new FileOutputStream(file, append);
     }
 
