@@ -5,7 +5,7 @@ import java.io.*;
 /**
  * Absolute paths device works with whole filesystem
  */
-public class AbsDevice implements IODevice {
+public class AbsDevice extends IODeviceAdapter {
     @Override
     public boolean isReadonly() {
         return false;
