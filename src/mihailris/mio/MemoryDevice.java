@@ -7,7 +7,16 @@ import java.util.Map;
 public class MemoryDevice extends IODeviceAdapter {
     protected boolean readonly;
     protected DirNode root;
-    private long usableSpace = 1024*1024*256;
+    private long usableSpace;
+
+    public MemoryDevice() {
+        this(1024*1024*256);
+    }
+
+    public MemoryDevice(int usableSpace) {
+        this.usableSpace = usableSpace;
+        this.root = new DirNode("<root>", null, new HashMap<>());
+    }
 
     @Override
     public boolean isReadonly() {
