@@ -310,48 +310,51 @@ public class Disk {
             throw new IOException(dest+" is read-only");
 
         List<IOPath> created = new ArrayList<>();
-        ZipInputStream zis = new ZipInputStream(new FileInputStream(file));
-        ZipEntry zipEntry = zis.getNextEntry();
-        long available = destDirFile.getUsableSpace();
-        while (zipEntry != null){
-            IOPath element = dest.child(zipEntry.getName());
-            if (zipEntry.isDirectory()){
-                if (!element.isDirectory()){
-                    element.mkdirs();
-                    created.add(element);
-                }
-            } else {
-                try {
-                    if (zipEntry.getSize() >= available)
-                        throw new IOException("no enough space to unpack "+zipEntry.getName()+
-                                " ("+zipEntry.getSize()+" B)");
-                    long size = zipEntry.getSize();
-                    byte[] bytes = new byte[(int) size];
-                    int offset = 0;
-                    while (offset < size) {
-                        offset += zis.read(bytes, offset, (int) (size-offset));
+        IODevice device = getDevice(source.getPrefix(), true);
+        try (InputStream input = read(source)) {
+            ZipInputStream zis = new ZipInputStream(input);
+            ZipEntry zipEntry = zis.getNextEntry();
+            long available = destDirFile.getUsableSpace();
+            while (zipEntry != null) {
+                IOPath element = dest.child(zipEntry.getName());
+                if (zipEntry.isDirectory()) {
+                    if (!element.isDirectory()) {
+                        element.mkdirs();
+                        created.add(element);
                     }
-                    writeBytes(element, bytes);
-                    created.add(element);
-                } catch (IOException e){
-                    // Revert creations
-                    onFail(UNZIP, dest, zipEntry.getName(), e);
-                    for (IOPath path : created){
-                        try {
-                            delete(path);
-                        } catch (IOException e1){
-                            onFail(DELETE, path, null, e1);
+                } else {
+                    try {
+                        if (zipEntry.getSize() >= available)
+                            throw new IOException("no enough space to unpack " + zipEntry.getName() +
+                                    " (" + zipEntry.getSize() + " B)");
+                        long size = zipEntry.getSize();
+                        byte[] bytes = new byte[(int) size];
+                        int offset = 0;
+                        while (offset < size) {
+                            offset += zis.read(bytes, offset, (int) (size - offset));
                         }
+                        writeBytes(element, bytes);
+                        created.add(element);
+                    } catch (IOException e) {
+                        // Revert creations
+                        onFail(UNZIP, dest, zipEntry.getName(), e);
+                        for (IOPath path : created) {
+                            try {
+                                delete(path);
+                            } catch (IOException e1) {
+                                onFail(DELETE, path, null, e1);
+                            }
+                        }
+                        zis.closeEntry();
+                        zis.close();
+                        throw e;
                     }
-                    zis.closeEntry();
-                    zis.close();
-                    throw e;
                 }
+                zipEntry = zis.getNextEntry();
             }
-            zipEntry = zis.getNextEntry();
+            zis.closeEntry();
+            zis.close();
         }
-        zis.closeEntry();
-        zis.close();
     }
 
     public static boolean hasDevice(String label) {
