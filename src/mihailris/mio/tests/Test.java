@@ -11,7 +11,8 @@ public class Test {
         Disk.initialize(Test.class);
         MemoryDevice device = new MemoryDevice();
         Disk.addDevice("mem", device);
-        System.out.println("Test.main "+ Arrays.toString(IOPath.get("mem:").listDir()));
+        IOPath.get("mem:test.edt").writeString("test");
+        System.out.println(Arrays.toString(IOPath.get("mem:").listDir()));
         Disk.close();
     }
 }

@@ -48,7 +48,7 @@ public class IOPath {
 
     public IOPath child(String node){
         String path = this.path;
-        if (!path.endsWith("/"))
+        if (!path.endsWith("/") && !path.endsWith(":"))
             path += "/";
         path += node;
         return IOPath.get(path);
