@@ -244,4 +244,8 @@ public class IOPath {
     public IOPath extended(String ext) {
         return IOPath.get(path+ext);
     }
+
+    public IOPath[] listDir() {
+        return Disk.list(this);
+    }
 }

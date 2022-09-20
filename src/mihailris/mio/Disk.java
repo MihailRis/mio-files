@@ -118,6 +118,14 @@ public class Disk {
         addDevice(label, new DirDevice(directory), makedir);
     }
 
+    public static void createMemoryDevice(String label){
+        addDevice(label, new MemoryDevice());
+    }
+
+    public static void createMemoryDevice(String label, int capacity){
+        addDevice(label, new MemoryDevice(capacity));
+    }
+
     public static IOPath absolute(String path){
         return new IOPath("abs", path);
     }

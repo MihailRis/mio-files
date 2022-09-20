@@ -7,6 +7,7 @@ import java.util.Map;
 public class MemoryDevice extends IODeviceAdapter {
     protected boolean readonly;
     protected DirNode root;
+    private final long totalSpace;
     private long usableSpace;
 
     public MemoryDevice() {
@@ -15,6 +16,7 @@ public class MemoryDevice extends IODeviceAdapter {
 
     public MemoryDevice(int usableSpace) {
         this.usableSpace = usableSpace;
+        this.totalSpace = usableSpace;
         this.root = new DirNode("<root>", null, new HashMap<>());
     }
 
@@ -26,6 +28,10 @@ public class MemoryDevice extends IODeviceAdapter {
     @Override
     public long getUsableSpace(String path) {
         return usableSpace;
+    }
+
+    public long getTotalSpace() {
+        return totalSpace;
     }
 
     @Override
@@ -40,12 +46,14 @@ public class MemoryDevice extends IODeviceAdapter {
                 super.close();
                 byte[] bytes = toByteArray();
                 if (!append) {
+                    usableSpace -= (bytes.length - file.content.length);
                     file.content = bytes;
                     return;
                 }
                 byte[] newContent = new byte[file.content.length + bytes.length];
                 System.arraycopy(file.content, 0, newContent, 0, file.content.length);
                 System.arraycopy(bytes, 0, newContent, file.content.length, bytes.length);
+                usableSpace -= bytes.length;
                 file.content = newContent;
             }
         };
@@ -91,6 +99,16 @@ public class MemoryDevice extends IODeviceAdapter {
         if (node.parent == null)
             return false;
         DirNode dir = node.parent;
+        if (node instanceof DirNode){
+            if (((DirNode) node).nodes.isEmpty()){
+                dir.nodes.put(node.name, null);
+                return true;
+            }
+            return false;
+        }
+        if (node instanceof FileNode){
+            usableSpace += ((FileNode) node).content.length;
+        }
         dir.nodes.put(node.name, null);
         return true;
     }
@@ -165,10 +183,6 @@ public class MemoryDevice extends IODeviceAdapter {
         return getNode(path) instanceof LinkNode;
     }
 
-    public void setUsableSpace(long usableSpace) {
-        this.usableSpace = usableSpace;
-    }
-
     static class Node {
         DirNode parent;
         long lastModified;
@@ -183,6 +197,8 @@ public class MemoryDevice extends IODeviceAdapter {
         String[] elements = path.split("/");
         Node node = root;
         for (String element : elements) {
+            if (element.isEmpty())
+                continue;
             while (node instanceof LinkNode) {
                 LinkNode link = (LinkNode) node;
                 node = link.target;
