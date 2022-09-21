@@ -40,6 +40,9 @@ public class IOPath {
         return path.substring(0, path.indexOf(':'));
     }
 
+    /**
+     * @return depth of iopath where root is 0
+     */
     public int getDepth(){
         int slashes = path.length() - path.replace("/", "").length();
         return slashes + (getPath().isEmpty() ? 0 : 1);
@@ -154,6 +157,9 @@ public class IOPath {
         return this;
     }
 
+    /**
+     * @return removes extension and returns itself
+     */
     public IOPath removeExt() {
         int index = path.lastIndexOf('.');
         if (index == -1)
@@ -179,7 +185,10 @@ public class IOPath {
         Arrays.sort(paths, Comparator.comparingLong(IOPath::getLastModification).reversed());
     }
 
-    public void emptyDirectory() throws IOException {
+    /**
+     * Delete all directory content
+     */
+    public void clearDirectory() throws IOException {
         IOPath[] paths = Disk.list(this);
         if (paths == null)
             return;
@@ -198,6 +207,9 @@ public class IOPath {
         return Disk.delete(this);
     }
 
+    /**
+     * @return length of file (bytes)
+     */
     public long length() {
         return Disk.length(this);
     }
@@ -207,7 +219,7 @@ public class IOPath {
     }
 
     public void deleteTree() throws IOException {
-        emptyDirectory();
+        clearDirectory();
         delete();
     }
 
