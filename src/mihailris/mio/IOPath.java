@@ -31,6 +31,9 @@ public class IOPath {
         return path.indexOf(':') != -1;
     }
 
+    /**
+     * @return label part of iopath (all before ':')
+     */
     public String getPrefix(){
         if (!hasPrefix())
             return "";
@@ -46,6 +49,10 @@ public class IOPath {
         return path.substring(path.indexOf(':')+1);
     }
 
+    /**
+     * @param node subnode name
+     * @return new subnode iopath
+     */
     public IOPath child(String node){
         String path = this.path;
         if (!path.endsWith("/") && !path.endsWith(":"))
@@ -54,6 +61,9 @@ public class IOPath {
         return IOPath.get(path);
     }
 
+    /**
+     * @return new parent node iopath
+     */
     public IOPath parent(){
         String path = this.path;
         int index = path.lastIndexOf('/');
@@ -85,6 +95,9 @@ public class IOPath {
         return iopath;
     }
 
+    /**
+     * @return name of iopath node (with extension)
+     */
     public String name() {
         String name = getPath();
         int index = name.lastIndexOf('/');
@@ -94,6 +107,9 @@ public class IOPath {
         return name;
     }
 
+    /**
+     * @return name of iopath node (with no extension)
+     */
     public String nameNoExt() {
         String name = getPath();
         int index = name.lastIndexOf('/');
@@ -106,6 +122,9 @@ public class IOPath {
         return name.substring(0, index);
     }
 
+    /**
+     * @return iopath path part without extension
+     */
     public String pathNoExt() {
         String path = getPath();
         int index = path.lastIndexOf('.');
@@ -220,6 +239,9 @@ public class IOPath {
         return Disk.readString(this, charset);
     }
 
+    /**
+     * @return node name extension (.png, .jpg, ...)
+     */
     public String extension() {
         String name = name();
         int index = name.lastIndexOf(".");
