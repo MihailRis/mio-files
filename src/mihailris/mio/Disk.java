@@ -30,6 +30,9 @@ public class Disk {
         separator = System.getProperty("file.separator");
     }
 
+    /**
+     * Close all added devices
+     */
     public static void close(){
         for (IODevice device : devices.values()){
             try {

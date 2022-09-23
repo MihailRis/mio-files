@@ -201,6 +201,10 @@ public class IOPath {
         }
     }
 
+    /**
+     * Delete file or empty directory
+     * @return true if deleted something
+     */
     public boolean delete() throws IOException {
         if (!isExists())
             return false;
@@ -239,6 +243,9 @@ public class IOPath {
         return Disk.getFile(this);
     }
 
+    /**
+     * Read all file bytes
+     */
     public byte[] readBytes() throws IOException {
         return Disk.readBytes(this);
     }
