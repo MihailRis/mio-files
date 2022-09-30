@@ -12,7 +12,6 @@ import static mihailris.mio.DiskListener.DiskEvent.*;
 @SuppressWarnings("unused")
 public class Disk {
     private static boolean isjar;
-    private static String separator;
 
     public static long totalRead;
     public static long totalWrite;
@@ -26,8 +25,6 @@ public class Disk {
         assert (url != null);
         String classJar = url.toString();
         isjar = classJar.startsWith("jar:");
-
-        separator = System.getProperty("file.separator");
     }
 
     /**
@@ -107,10 +104,6 @@ public class Disk {
         devices.put(label, new ResDevice(jarDir));
     }
 
-    public static void createMixedResDevice(String label, String localDir, String jarDir){
-        devices.put(label, new MixedResDevice(localDir, jarDir));
-    }
-
     public static void createAbsDevice(){
         devices.put("abs", new AbsDevice());
     }
@@ -123,6 +116,12 @@ public class Disk {
         if (!directory.isDirectory() && !makedir)
             throw new IllegalArgumentException(directory+" is not a directory");
         addDevice(label, new DirDevice(directory), makedir);
+    }
+
+    public static void createReadonlyDirDevice(String label, File directory){
+        if (!directory.isDirectory())
+            throw new IllegalArgumentException(directory+" is not a directory");
+        addDevice(label, new DirDevice(directory, true));
     }
 
     public static void createMemoryDevice(String label){

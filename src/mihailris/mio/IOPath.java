@@ -218,10 +218,16 @@ public class IOPath {
         return Disk.length(this);
     }
 
+    /**
+     * Create whole path chain of directories including this one
+     */
     public boolean mkdirs() {
         return Disk.mkdirs(this);
     }
 
+    /**
+     * Delete file/directory recursive
+     */
     public void deleteTree() throws IOException {
         clearDirectory();
         delete();
@@ -231,12 +237,32 @@ public class IOPath {
         return Disk.isDirectory(this);
     }
 
+    /**
+     * Write string to file
+     */
     public void writeString(String string) {
         Disk.writeString(this, string);
     }
 
-    public void writeString(String string, boolean append) {
-        Disk.writeString(this, string, append);
+    /**
+     * Append string to file
+     */
+    public void appendString(String string) {
+        Disk.writeString(this, string, true);
+    }
+
+    /**
+     * Write bytes to file
+     */
+    public void writeBytes(byte[] bytes) {
+        Disk.writeBytes(this, bytes);
+    }
+
+    /**
+     * Append bytes to file
+     */
+    public void appendBytes(byte[] bytes) {
+        Disk.writeBytes(this, bytes, true);
     }
 
     public File file() {

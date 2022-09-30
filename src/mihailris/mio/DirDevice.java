@@ -2,16 +2,27 @@ package mihailris.mio;
 
 import java.io.*;
 
+/**
+ * IODevice that use directory as paths root
+ * Writeable by default, but may be created as readonly
+ */
 public class DirDevice extends IODeviceAdapter {
     final File directory;
+    final boolean readonly;
 
     public DirDevice(File directory) {
         this.directory = directory;
+        this.readonly = false;
+    }
+
+    public DirDevice(File directory, boolean readonly) {
+        this.directory = directory;
+        this.readonly = readonly;
     }
 
     @Override
     public boolean isReadonly() {
-        return false;
+        return readonly;
     }
 
     @Override

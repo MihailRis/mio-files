@@ -3,6 +3,12 @@ package mihailris.mio;
 import java.io.*;
 import java.net.URL;
 
+/**
+ * IODevice that use Java Resources
+ * Usefull for internal application resources (read only)
+ * <br><br>
+ * <i>Create _files.txt in directories to use listdir feature here</i>
+ */
 public class ResDevice extends IODeviceAdapter {
     private final String jarDir;
 
