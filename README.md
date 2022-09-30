@@ -13,8 +13,11 @@ Example of initialization:
 Disk.initialize(Main.class); // use any class instead of Main in the same .jar as the application
 // right here Disk has no any pre-defined IODevice added
 // you need to configure it yourself
-Disk.createResDevice("res", "/"); // creates ResDevice with label 'res' at root of resources directory
-Disk.createDirDevice("user", new File(gameDir)); // creates DirDevice from given directory
+
+// creates ResDevice with label 'res' at root of java resources directory
+Disk.createResDevice("res", "/");
+// creates DirDevice from given directory
+Disk.createDirDevice("user", new File(gameDir));
 ```
 
 Reading string:
