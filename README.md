@@ -35,13 +35,18 @@ byte[] bytes = IOPath.get("res:colomaps/lights.cm").readBytes();
 Reading properties:
 ```java
 Properties properties = new Properties();
-Disk.read(properties, IOPath.get("res:engine_settings.properties"));
+IOPath.get("res:engine_settings.properties").read(properties);
 ```
 
 Write string:
 ```java
 // 'user' device is added with Disk.createDirDevice("user", new File(...));
 IOPath.get("user:error_log.txt").writeString(getErrorLog());
+```
+
+Write bytes array:
+```java
+IOPath.get("user:save.bin").writeBytes(bytes);
 ```
 
 Work with external files:

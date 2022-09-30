@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Objects;
+import java.util.Properties;
 
 @SuppressWarnings({"UnusedReturnValue", "unused"})
 public class IOPath {
@@ -282,6 +283,13 @@ public class IOPath {
 
     public String readString(String charset) throws IOException {
         return Disk.readString(this, charset);
+    }
+
+    /**
+     * Read Properties from the file
+     */
+    public void read(Properties properties) throws IOException {
+        Disk.read(properties, this);
     }
 
     /**
