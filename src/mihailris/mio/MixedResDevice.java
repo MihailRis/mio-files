@@ -112,7 +112,7 @@ public class MixedResDevice extends IODeviceAdapter {
     @Override
     public boolean exists(String path) {
         if (Disk.isJar()){
-            return Disk.class.getResource("/res/"+path) != null;
+            return Disk.class.getResource("/"+jarDir+"/"+path) != null;
         } else {
             return new File(localDir, path).exists();
         }
@@ -122,7 +122,7 @@ public class MixedResDevice extends IODeviceAdapter {
     public boolean isFile(String path) {
         if (Disk.isJar()){
             try {
-                InputStream input = Disk.class.getResourceAsStream("/res/"+path);
+                InputStream input = Disk.class.getResourceAsStream("/"+jarDir+"/"+path);
                 if (input == null)
                     return false;
                 boolean isfile = input.available() > 0;
@@ -140,7 +140,7 @@ public class MixedResDevice extends IODeviceAdapter {
     public boolean isDirectory(String path) {
         if (Disk.isJar()){
             try {
-                InputStream input = Disk.class.getResourceAsStream("/res/"+path);
+                InputStream input = Disk.class.getResourceAsStream("/"+jarDir+"/"+path);
                 if (input == null)
                     return false;
                 boolean isdir = input.available() == 0;
