@@ -103,8 +103,12 @@ public class Disk {
         labelsListeners.remove(label);
     }
 
-    public static void createResDevice(String localDir, String jarDir){
-        devices.put("res", new ResDevice(localDir, jarDir));
+    public static void createResDevice(String label, String jarDir){
+        devices.put(label, new ResDevice(jarDir));
+    }
+
+    public static void createMixedResDevice(String label, String localDir, String jarDir){
+        devices.put(label, new MixedResDevice(localDir, jarDir));
     }
 
     public static void createAbsDevice(){
