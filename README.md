@@ -14,7 +14,7 @@ Disk.initialize(Main.class); // use any class instead of Main in the same .jar a
 // right here Disk has no any pre-defined IODevice added
 // you need to configure it yourself
 
-// creates ResDevice with label 'res' at root of java resources directory
+// creates ResDevice with label 'res' at root of java resources
 Disk.createResDevice("res", "/");
 // creates DirDevice from given directory
 Disk.createDirDevice("user", new File(gameDir));
@@ -22,14 +22,14 @@ Disk.createDirDevice("user", new File(gameDir));
 
 Reading string:
 ```java
-String text = Disk.readString(IOPath.get("res:texts/names.txt"));
+String text = IOPath.get("res:texts/names.txt").readString();
 // or
-String text = Disk.readString(IOPath.get("res:texts/names.txt"), charset);
+String text = IOPath.get("res:texts/names.txt").readString(charset);
 ```
 
 Reading bytes array:
 ```java
-byte[] bytes = Disk.readBytes(IOPath.get("res:colomaps/lights.cm"));
+byte[] bytes = IOPath.get("res:colomaps/lights.cm").readBytes();
 ```
 
 Reading properties:
@@ -41,7 +41,7 @@ Disk.read(properties, IOPath.get("res:engine_settings.properties"));
 Write string:
 ```java
 // 'user' device is added with Disk.createDirDevice("user", new File(...));
-Disk.writeString(IOPath.get("user:error_log.txt"), getErrorLog());
+IOPath.get("user:error_log.txt").writeString(getErrorLog());
 ```
 
 Work with external files:
