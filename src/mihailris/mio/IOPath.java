@@ -277,10 +277,16 @@ public class IOPath {
         return Disk.readBytes(this);
     }
 
+    /**
+     * Read UTF8 string from file
+     */
     public String readString() throws IOException {
         return Disk.readString(this);
     }
 
+    /**
+     * Read string from file
+     */
     public String readString(String charset) throws IOException {
         return Disk.readString(this, charset);
     }
