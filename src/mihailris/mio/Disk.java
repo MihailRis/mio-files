@@ -3,23 +3,20 @@ package mihailris.mio;
 import java.io.*;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 
-import static mihailris.mio.DiskListener.DiskEvent.*;
+@SuppressWarnings({"unused", "UnusedReturnValue"})
+public class Disk implements Closeable {
+    private final boolean isjar;
 
-@SuppressWarnings("unused")
-public class Disk {
-    private static boolean isjar;
+    public long totalRead;
+    public long totalWrite;
+    private final Map<String, IODevice> devices = new HashMap<>();
 
-    public static long totalRead;
-    public static long totalWrite;
-    private static final Map<String, IODevice> devices = new HashMap<>();
-    private static final Set<DiskListener> listeners = new HashSet<>();
-    private static final Map<String, Set<DiskListener>> labelsListeners = new HashMap<>();
-
-    public static void initialize(Class<?> cls){
+    public Disk(Class<?> cls){
         String className = cls.getName().replace('.', '/');
         URL url = cls.getResource("/"+className+".class");
         assert (url != null);
@@ -30,7 +27,8 @@ public class Disk {
     /**
      * Close all added devices
      */
-    public static void close(){
+    @Override
+    public void close(){
         for (IODevice device : devices.values()){
             try {
                 device.close();
@@ -40,120 +38,76 @@ public class Disk {
         }
     }
 
-    public static void addListener(DiskListener listener) {
-        listeners.add(listener);
-    }
-
-    public static void addListener(String label, DiskListener listener) {
-        labelsListeners.computeIfAbsent(label, k -> new HashSet<>()).add(listener);
-    }
-
-    public static void removeListener(DiskListener listener){
-        listeners.remove(listener);
-    }
-
-    private static void onEvent(DiskListener.DiskEvent event, IOPath path){
-        for (DiskListener listener : listeners){
-            listener.onEvent(event, path, null);
-        }
-        String label = path.getPrefix();
-        Set<DiskListener> labelListeners = labelsListeners.get(label);
-        if (labelListeners != null){
-            for (DiskListener listener : labelListeners){
-                listener.onEvent(event, path, null);
-            }
-        }
-    }
-
-    private static void onFail(DiskListener.DiskEvent event, IOPath path, String comment, IOException error){
-        for (DiskListener listener : listeners){
-            listener.onFail(event, path, comment, error);
-        }
-        String label = path.getPrefix();
-        Set<DiskListener> labelListeners = labelsListeners.get(label);
-        if (labelListeners != null){
-            for (DiskListener listener : labelListeners){
-                listener.onFail(event, path, comment, error);
-            }
-        }
-        {
-            System.err.println("MIO-Disk operation failed ["+event+"]: "+path+" ("+comment+")");
-            error.printStackTrace();
-        }
-    }
-
-    public static void addDevice(String label, IODevice device){
+    public void addDevice(String label, IODevice device){
         addDevice(label, device, false);
     }
 
-    public static void addDevice(String label, IODevice device, boolean makedir){
+    public void addDevice(String label, IODevice device, boolean makedir){
         devices.put(label, device);
         if (makedir) {
             IOPath root = IOPath.get(label+':');
-            if (!root.isDirectory())
-                root.mkdirs();
+            if (!isDirectory(root))
+                mkdirs(root);
         }
     }
 
-    public static void removeDevice(String label){
+    public void removeDevice(String label){
         devices.remove(label);
-        labelsListeners.remove(label);
     }
 
-    public static void createResDevice(String label, String jarDir){
-        devices.put(label, new ResDevice(jarDir));
+    public void createResDevice(String label, String jarDir){
+        devices.put(label, new ResDevice(jarDir, this));
     }
 
-    public static void createAbsDevice(){
+    public void createAbsDevice(){
         devices.put("abs", new AbsDevice());
     }
 
-    public static void createDirDevice(String label, File directory){
+    public void createDirDevice(String label, File directory){
         createDirDevice(label, directory, true);
     }
 
-    public static void createDirDevice(String label, File directory, boolean makedir){
+    public void createDirDevice(String label, File directory, boolean makedir){
         if (!directory.isDirectory() && !makedir)
             throw new IllegalArgumentException(directory+" is not a directory");
         addDevice(label, new DirDevice(directory), makedir);
     }
 
-    public static void createReadonlyDirDevice(String label, File directory){
+    public void createReadonlyDirDevice(String label, File directory){
         if (!directory.isDirectory())
             throw new IllegalArgumentException(directory+" is not a directory");
         addDevice(label, new DirDevice(directory, true));
     }
 
-    public static void createMemoryDevice(String label){
+    public void createMemoryDevice(String label){
         addDevice(label, new MemoryDevice());
     }
 
-    public static void createMemoryDevice(String label, int capacity){
+    public void createMemoryDevice(String label, int capacity){
         addDevice(label, new MemoryDevice(capacity));
     }
 
-    public static IOPath absolute(String path){
+    public IOPath absolute(String path){
         return new IOPath("abs", path);
     }
 
-    public static boolean isJar(){
+    public boolean isJar(){
         return isjar;
     }
 
-    private static OutputStream write(IOPath path, boolean append) throws IOException {
+    private OutputStream write(IOPath path, boolean append) throws IOException {
         return getDevice(path.getPrefix(), false).write(path.getPath(), append);
     }
 
-    private static InputStream read(IOPath iopath) throws IOException {
+    InputStream read(IOPath iopath) throws IOException {
         return getDevice(iopath.getPrefix(), true).read(iopath.getPath());
     }
 
-    public static void writeBytes(IOPath path, byte[] content){
-        writeBytes(path, content, false);
+    public void write(IOPath path, byte[] content){
+        write(path, content, false);
     }
 
-    public static void writeBytes(IOPath path, byte[] content, boolean append){
-        onEvent(WRITE, path);
+    public void write(IOPath path, byte[] content, boolean append){
         OutputStream output = null;
         try {
             output = write(path, append);
@@ -173,15 +127,15 @@ public class Disk {
         }
     }
 
-    public static void writeString(IOPath path, String content){
-        writeBytes(path, content.getBytes(), false);
+    public void write(IOPath path, String content){
+        write(path, content.getBytes(), false);
     }
 
-    public static void writeString(IOPath path, String content, boolean append) {
-        writeBytes(path, content.getBytes(), append);
+    public void write(IOPath path, String content, boolean append) {
+        write(path, content.getBytes(), append);
     }
 
-    public static long lastModified(IOPath iopath){
+    public long lastModified(IOPath iopath){
         try {
             return getDevice(iopath.getPrefix(), true).lastModified(iopath.getPath());
         } catch (IOException e) {
@@ -189,7 +143,7 @@ public class Disk {
         }
     }
 
-    public static boolean setLastModified(IOPath iopath, long lastModified){
+    public boolean setLastModified(IOPath iopath, long lastModified){
         try {
             return getDevice(iopath.getPrefix(), true).setLastModified(iopath.getPath(), lastModified);
         } catch (IOException e) {
@@ -197,8 +151,7 @@ public class Disk {
         }
     }
 
-    public static IOPath[] list(IOPath iopath) {
-        onEvent(LIST, iopath);
+    public IOPath[] list(IOPath iopath) {
         try {
             return getDevice(iopath.getPrefix(), true).listDir(iopath);
         } catch (IOException e) {
@@ -206,7 +159,7 @@ public class Disk {
         }
     }
 
-    private static IODevice getDevice(String label, boolean readonly) throws IOException {
+    private IODevice getDevice(String label, boolean readonly) throws IOException {
         IODevice device = devices.get(label);
         if (device == null)
             throw new IOException("unknown I/O device '"+label+"'");
@@ -215,40 +168,72 @@ public class Disk {
         return device;
     }
 
-    public static byte[] readBytes(IOPath iopath) throws IOException {
-        onEvent(READ, iopath);
+    public byte[] readBytes(IOPath iopath) throws IOException {
         try (InputStream input = read(iopath)) {
-            byte[] bytes = new byte[input.available()];
-            int read;
-            for (int pos = 0; pos < bytes.length; pos += read) {
-                read = input.read(bytes, pos, bytes.length - pos);
-                if (read < 0) {
-                    throw new EOFException();
-                }
-            }
+            long length = length(iopath);
+            byte[] bytes = new byte[(int) length];
+            IOUtil.readFully(input, bytes);
             totalRead += bytes.length;
             return bytes;
         }
     }
 
-    public static String readString(IOPath iopath) throws IOException {
+    public void copy(IOPath src, IOPath dst) throws IOException {
+        IODevice deviceSrc = getDevice(src.getPrefix(), true);
+        IODevice deviceDst = getDevice(dst.getPrefix(), false);
+
+        String srcPath = src.getPath();
+        String dstPath = dst.getPath();
+
+        if (deviceSrc == deviceDst) {
+            deviceDst.copy(srcPath, dstPath);
+        } else {
+            copy(deviceSrc, deviceDst, src, dst);
+        }
+    }
+
+    private void copy(IODevice deviceSrc, IODevice deviceDst, IOPath src, IOPath dst) throws IOException {
+        if (isFile(dst))
+            throw new IOException("destination file is already exists");
+        long length = length(src);
+        try (OutputStream output = deviceDst.write(dst.getPath(), false)) {
+            try (InputStream input = deviceSrc.read(src.getPath())) {
+                IOUtil.transfer(input, output, length);
+            }
+        }
+    }
+
+    public void move(IOPath src, IOPath dst) throws IOException {
+        IODevice deviceSrc = getDevice(src.getPrefix(), true);
+        IODevice deviceDst = getDevice(dst.getPrefix(), false);
+
+        if (deviceSrc == deviceDst) {
+            String srcPath = src.getPath();
+            String dstPath = dst.getPath();
+            deviceDst.move(srcPath, dstPath);
+        } else {
+            copy(deviceSrc, deviceDst, src, dst);
+            delete(src);
+        }
+    }
+
+    public String readString(IOPath iopath) throws IOException {
         byte[] bytes = readBytes(iopath);
         return new String(bytes, StandardCharsets.UTF_8);
     }
 
-    public static String readString(IOPath iopath, String charset) throws IOException {
+    public String readString(IOPath iopath, String charset) throws IOException {
         byte[] bytes = readBytes(iopath);
         return new String(bytes, charset);
     }
 
-    public static void read(Properties properties, IOPath iopath) throws IOException {
-        onEvent(READ, iopath);
+    public void read(Properties properties, IOPath iopath) throws IOException {
         try (InputStream input = read(iopath)) {
             properties.load(input);
         }
     }
 
-    public static boolean isExist(IOPath iopath) {
+    public boolean isExist(IOPath iopath) {
         try {
             return getDevice(iopath.getPrefix(), true).exists(iopath.getPath());
         } catch (IOException e) {
@@ -256,7 +241,7 @@ public class Disk {
         }
     }
 
-    public static boolean isDirectory(IOPath iopath) {
+    public boolean isDirectory(IOPath iopath) {
         try {
             return getDevice(iopath.getPrefix(), true).isDirectory(iopath.getPath());
         } catch (IOException e) {
@@ -264,7 +249,7 @@ public class Disk {
         }
     }
 
-    public static boolean isFile(IOPath iopath) {
+    public boolean isFile(IOPath iopath) {
         try {
             return getDevice(iopath.getPrefix(), true).isFile(iopath.getPath());
         } catch (IOException e) {
@@ -276,7 +261,7 @@ public class Disk {
      * @param iopath path
      * @return true if iopath points to symlink
      */
-    public static boolean isLink(IOPath iopath) {
+    public boolean isLink(IOPath iopath) {
         try {
             return getDevice(iopath.getPrefix(), true).isLink(iopath.getPath());
         } catch (IOException e) {
@@ -284,8 +269,7 @@ public class Disk {
         }
     }
 
-    public static boolean mkdirs(IOPath iopath) {
-        onEvent(MKDIRS, iopath);
+    public boolean mkdirs(IOPath iopath) {
         try {
             return getDevice(iopath.getPrefix(), false).mkdirs(iopath.getPath());
         } catch (IOException e) {
@@ -297,12 +281,11 @@ public class Disk {
      * @param iopath path of file, symlink or empty directory
      * @return true if deleted anything
      */
-    public static boolean delete(IOPath iopath) throws IOException {
-        onEvent(DELETE, iopath);
+    public boolean delete(IOPath iopath) throws IOException {
         return getDevice(iopath.getPrefix(), false).delete(iopath.getPath());
     }
 
-    public static File getFile(IOPath iopath) {
+    public File getFile(IOPath iopath) {
         try {
             return getDevice(iopath.getPrefix(), true).getFile(iopath.getPath());
         } catch (IOException e){
@@ -311,73 +294,48 @@ public class Disk {
     }
 
     /**
-     * Unzip all content from ZIP file to destination directory.
-     * Tries to delete unpacked files on exception
-     * @param source target ZIP file
-     * @param dest destination directory
-     * @throws IOException on I/O errors
+     * Delete file/directory recursive
      */
-    public static void unzip(IOPath source, IOPath dest) throws IOException {
-        File file = getFile(source);
-        File destDirFile = getFile(dest);
-        if (destDirFile == null)
-            throw new IOException(dest+" is read-only");
+    public void deleteTree(IOPath path) throws IOException {
+        clearDirectory(path);
+        delete(path);
+    }
 
-        List<IOPath> created = new ArrayList<>();
-        IODevice device = getDevice(source.getPrefix(), true);
-        try (InputStream input = read(source)) {
-            ZipInputStream zis = new ZipInputStream(input);
-            ZipEntry zipEntry = zis.getNextEntry();
-            long available = destDirFile.getUsableSpace();
-            while (zipEntry != null) {
-                IOPath element = dest.child(zipEntry.getName());
-                if (zipEntry.isDirectory()) {
-                    if (!element.isDirectory()) {
-                        element.mkdirs();
-                        created.add(element);
-                    }
-                } else {
-                    try {
-                        if (zipEntry.getSize() >= available)
-                            throw new IOException("no enough space to unpack " + zipEntry.getName() +
-                                    " (" + zipEntry.getSize() + " B)");
-                        long size = zipEntry.getSize();
-                        byte[] bytes = new byte[(int) size];
-                        int offset = 0;
-                        while (offset < size) {
-                            offset += zis.read(bytes, offset, (int) (size - offset));
-                        }
-                        writeBytes(element, bytes);
-                        created.add(element);
-                    } catch (IOException e) {
-                        // Revert creations
-                        onFail(UNZIP, dest, zipEntry.getName(), e);
-                        for (IOPath path : created) {
-                            try {
-                                delete(path);
-                            } catch (IOException e1) {
-                                onFail(DELETE, path, null, e1);
-                            }
-                        }
-                        zis.closeEntry();
-                        zis.close();
-                        throw e;
-                    }
-                }
-                zipEntry = zis.getNextEntry();
+    /**
+     * Delete all directory content
+     */
+    public void clearDirectory(IOPath iopath) throws IOException {
+        IOPath[] paths = list(iopath);
+        if (paths == null)
+            return;
+        for (IOPath path : paths){
+            if (isDirectory(path)) {
+                deleteTree(path);
+            } else {
+                delete(path);
             }
-            zis.closeEntry();
-            zis.close();
         }
     }
 
-    public static boolean hasDevice(String label) {
+    public boolean hasDevice(String label) {
         return devices.containsKey(label);
     }
 
-    public static long length(IOPath path) {
+    public long length(IOPath path) {
         try {
             return getDevice(path.getPrefix(), true).length(path.getPath());
+        } catch (IOException e) {
+            return -1;
+        }
+    }
+
+    public Collection<String> getLabels() {
+        return devices.keySet();
+    }
+
+    public long getUsableSpace(IOPath path) {
+        try {
+            return getDevice(path.getPrefix(), true).getUsableSpace(path.getPath());
         } catch (IOException e) {
             return -1;
         }

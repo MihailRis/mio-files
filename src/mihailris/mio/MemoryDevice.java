@@ -5,13 +5,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class MemoryDevice extends IODeviceAdapter {
+    private static final int KiB = 1024;
+    private static final int MiB = KiB * 1024;
     protected boolean readonly;
     protected DirNode root;
     private final long totalSpace;
     private long usableSpace;
 
     public MemoryDevice() {
-        this(1024*1024*256);
+        this(MiB*32);
     }
 
     public MemoryDevice(int usableSpace) {
