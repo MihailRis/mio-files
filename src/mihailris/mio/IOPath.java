@@ -1,11 +1,6 @@
 package mihailris.mio;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.Objects;
-import java.util.Properties;
 
 @SuppressWarnings({"UnusedReturnValue", "unused"})
 public class IOPath {
@@ -77,14 +72,6 @@ public class IOPath {
             path = path.substring(0, index);
         }
         return IOPath.get(path);
-    }
-
-    public boolean isExists(){
-        return Disk.isExist(this);
-    }
-
-    public long getLastModification(){
-        return Disk.lastModified(this);
     }
 
     public IOPath cpy(){
@@ -178,126 +165,6 @@ public class IOPath {
         path += ext;
     }
 
-    public boolean isFile() {
-        return Disk.isFile(this);
-    }
-
-    public static void sortByModificationDate(IOPath[] paths){
-        Arrays.sort(paths, Comparator.comparingLong(IOPath::getLastModification).reversed());
-    }
-
-    /**
-     * Delete all directory content
-     */
-    public void clearDirectory() throws IOException {
-        IOPath[] paths = Disk.list(this);
-        if (paths == null)
-            return;
-        for (IOPath path : paths){
-            if (path.isDirectory()) {
-                path.deleteTree();
-            } else {
-                path.delete();
-            }
-        }
-    }
-
-    /**
-     * Delete file or empty directory
-     * @return true if deleted something
-     */
-    public boolean delete() throws IOException {
-        if (!isExists())
-            return false;
-        return Disk.delete(this);
-    }
-
-    /**
-     * @return length of file (bytes)
-     */
-    public long length() {
-        return Disk.length(this);
-    }
-
-    /**
-     * Create whole path chain of directories including this one
-     */
-    public boolean mkdirs() {
-        return Disk.mkdirs(this);
-    }
-
-    /**
-     * Delete file/directory recursive
-     */
-    public void deleteTree() throws IOException {
-        clearDirectory();
-        delete();
-    }
-
-    public boolean isDirectory() {
-        return Disk.isDirectory(this);
-    }
-
-    /**
-     * Write string to file
-     */
-    public void writeString(String string) {
-        Disk.writeString(this, string);
-    }
-
-    /**
-     * Append string to file
-     */
-    public void appendString(String string) {
-        Disk.writeString(this, string, true);
-    }
-
-    /**
-     * Write bytes to file
-     */
-    public void writeBytes(byte[] bytes) {
-        Disk.writeBytes(this, bytes);
-    }
-
-    /**
-     * Append bytes to file
-     */
-    public void appendBytes(byte[] bytes) {
-        Disk.writeBytes(this, bytes, true);
-    }
-
-    public File file() {
-        return Disk.getFile(this);
-    }
-
-    /**
-     * Read all file bytes
-     */
-    public byte[] readBytes() throws IOException {
-        return Disk.readBytes(this);
-    }
-
-    /**
-     * Read UTF8 string from file
-     */
-    public String readString() throws IOException {
-        return Disk.readString(this);
-    }
-
-    /**
-     * Read string from file
-     */
-    public String readString(String charset) throws IOException {
-        return Disk.readString(this, charset);
-    }
-
-    /**
-     * Read Properties from the file
-     */
-    public void read(Properties properties) throws IOException {
-        Disk.read(properties, this);
-    }
-
     /**
      * @return node name extension (.png, .jpg, ...)
      */
@@ -324,9 +191,5 @@ public class IOPath {
 
     public IOPath extended(String ext) {
         return IOPath.get(path+ext);
-    }
-
-    public IOPath[] listDir() {
-        return Disk.list(this);
     }
 }

@@ -11,38 +11,38 @@ Implementations:
 
 Example of initialization:
 ```java
-Disk.initialize(Main.class); // use any class instead of Main in the same .jar as the application
+Disk disk = new Disk(Main.class); // use any class instead of Main in the same .jar as the application
 // right here Disk has no any pre-defined IODevice added
 // you need to configure it yourself
 
 // creates ResDevice with label 'res' at root of java resources
-Disk.createResDevice("res", "/");
+disk.createResDevice("res", "/");
 // creates DirDevice from given directory
-Disk.createDirDevice("user", new File(gameDir));
+disk.createDirDevice("user", new File(gameDir));
 ```
 
 Reading string:
 ```java
-String text = IOPath.get("res:texts/names.txt").readString();
+String text = disk.readString("res:texts/names.txt");
 // or
-String text = IOPath.get("res:texts/names.txt").readString(charset);
+String text = disk.readString("res:texts/names.txt", charset);
 ```
 
 Reading bytes array:
 ```java
-byte[] bytes = IOPath.get("res:colomaps/lights.cm").readBytes();
+byte[] bytes = disk.readBytes("res:colomaps/lights.cm");
 ```
 
 Reading properties:
 ```java
 Properties properties = new Properties();
-IOPath.get("res:engine_settings.properties").read(properties);
+disk.read("res:engine_settings.properties", properties);
 ```
 
 Write string:
 ```java
 // 'user' device is added with Disk.createDirDevice("user", new File(...));
-IOPath.get("user:error_log.txt").writeString(getErrorLog());
+disk.write("user:error_log.txt", getErrorLog());
 ```
 
 Write bytes array:
