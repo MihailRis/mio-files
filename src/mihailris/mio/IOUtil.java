@@ -34,18 +34,18 @@ public class IOUtil {
      * @param dest destination directory
      * @throws IOException on I/O errors
      */
-    public static void unpack(Disk disk, IOPath source, IOPath dest) throws IOException {
+    public static void unpack(IOPath source, IOPath dest) throws IOException {
 
         List<IOPath> created = new ArrayList<>();
-        try (InputStream input = disk.read(source)) {
+        try (InputStream input = Disk.read(source)) {
             ZipInputStream zis = new ZipInputStream(input);
             ZipEntry zipEntry = zis.getNextEntry();
-            long available = disk.getUsableSpace(dest);
+            long available = Disk.getUsableSpace(dest);
             while (zipEntry != null) {
                 IOPath element = dest.child(zipEntry.getName());
                 if (zipEntry.isDirectory()) {
-                    if (!disk.isDirectory(element)) {
-                        disk.mkdirs(element);
+                    if (!element.isDirectory()) {
+                        element.mkdirs();
                         created.add(element);
                     }
                 } else {
@@ -59,13 +59,13 @@ public class IOUtil {
                         while (offset < size) {
                             offset += zis.read(bytes, offset, (int) (size - offset));
                         }
-                        disk.write(element, bytes);
+                        element.write(bytes);
                         created.add(element);
                     } catch (IOException e) {
                         // Revert creations
                         for (IOPath path : created) {
                             try {
-                                disk.delete(path);
+                                path.delete();
                             } catch (IOException e1) {
                                 e1.printStackTrace();
                             }
@@ -82,7 +82,7 @@ public class IOUtil {
         }
     }
 
-    public static String tree(Disk disk, IOPath root) {
+    public static String tree(IOPath root) {
         StringBuilder builder = new StringBuilder();
 
         if (root.getDepth() == 0) {
@@ -90,36 +90,36 @@ public class IOUtil {
         } else {
             builder.append(root);
         }
-        if (disk.isDirectory(root)) {
+        if (root.isDirectory()) {
             builder.append(":");
-            IOPath[] files = disk.list(root);
+            IOPath[] files = root.list();
             if (files.length == 0) {
                 builder.append(" empty");
                 return builder.toString();
             }
             for (IOPath file : files) {
                 builder.append("\n");
-                tree(disk, file, builder, 1);
+                tree(file, builder, 1);
             }
         }
         return builder.toString();
     }
 
-    private static void tree(Disk disk, IOPath root, StringBuilder builder, int indent) {
+    private static void tree(IOPath root, StringBuilder builder, int indent) {
         for (int i = 0; i < indent; i++) {
             builder.append("\t");
         }
         builder.append(root.name());
-        if (disk.isDirectory(root)) {
+        if (root.isDirectory()) {
             builder.append(":");
-            IOPath[] files = disk.list(root);
+            IOPath[] files = root.list();
             if (files.length == 0) {
                 builder.append(" empty");
                 return;
             }
             for (IOPath file : files) {
                 builder.append("\n");
-                tree(disk, file, builder, indent+1);
+                tree(file, builder, indent+1);
             }
         }
     }

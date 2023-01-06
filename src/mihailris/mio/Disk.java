@@ -9,26 +9,15 @@ import java.util.Map;
 import java.util.Properties;
 
 @SuppressWarnings({"unused", "UnusedReturnValue"})
-public class Disk implements Closeable {
-    private final boolean isjar;
-
-    public long totalRead;
-    public long totalWrite;
-    private final Map<String, IODevice> devices = new HashMap<>();
-
-    public Disk(Class<?> cls){
-        String className = cls.getName().replace('.', '/');
-        URL url = cls.getResource("/"+className+".class");
-        assert (url != null);
-        String classJar = url.toString();
-        isjar = classJar.startsWith("jar:");
-    }
+public class Disk {
+    public static long totalRead;
+    public static long totalWrite;
+    private static final Map<String, IODevice> devices = new HashMap<>();
 
     /**
      * Close all added devices
      */
-    @Override
-    public void close(){
+    public static void close(){
         for (IODevice device : devices.values()){
             try {
                 device.close();
@@ -38,11 +27,11 @@ public class Disk implements Closeable {
         }
     }
 
-    public void addDevice(String label, IODevice device){
+    public static void addDevice(String label, IODevice device){
         addDevice(label, device, false);
     }
 
-    public void addDevice(String label, IODevice device, boolean makedir){
+    public static void addDevice(String label, IODevice device, boolean makedir){
         devices.put(label, device);
         if (makedir) {
             IOPath root = IOPath.get(label+':');
@@ -51,63 +40,67 @@ public class Disk implements Closeable {
         }
     }
 
-    public void removeDevice(String label){
+    public static void removeDevice(String label){
         devices.remove(label);
     }
 
-    public void createResDevice(String label, String jarDir){
-        devices.put(label, new ResDevice(jarDir, this));
+    public static void createResDevice(String label, String jarDir){
+        devices.put(label, new ResDevice(jarDir));
     }
 
-    public void createAbsDevice(){
+    public static void createAbsDevice(){
         devices.put("abs", new AbsDevice());
     }
 
-    public void createDirDevice(String label, File directory){
+    public static void createDirDevice(String label, File directory){
         createDirDevice(label, directory, true);
     }
 
-    public void createDirDevice(String label, File directory, boolean makedir){
+    public static void createDirDevice(String label, File directory, boolean makedir){
         if (!directory.isDirectory() && !makedir)
             throw new IllegalArgumentException(directory+" is not a directory");
         addDevice(label, new DirDevice(directory), makedir);
     }
 
-    public void createReadonlyDirDevice(String label, File directory){
+    public static void createReadonlyDirDevice(String label, File directory){
         if (!directory.isDirectory())
             throw new IllegalArgumentException(directory+" is not a directory");
         addDevice(label, new DirDevice(directory, true));
     }
 
-    public void createMemoryDevice(String label){
+    public static void createMemoryDevice(String label){
         addDevice(label, new MemoryDevice());
     }
 
-    public void createMemoryDevice(String label, int capacity){
+    public static void createMemoryDevice(String label, int capacity){
         addDevice(label, new MemoryDevice(capacity));
     }
 
-    public IOPath absolute(String path){
+    public static IOPath absolute(String path){
         return new IOPath("abs", path);
     }
 
-    public boolean isJar(){
-        return isjar;
+    public static boolean isJar(Class<?> cls){
+        String className = cls.getName().replace('.', '/');
+        URL url = cls.getResource("/"+className+".class");
+        assert (url != null);
+        String classJar = url.toString();
+        return classJar.startsWith("jar:");
     }
 
-    private OutputStream write(IOPath path, boolean append) throws IOException {
+    private static OutputStream write(IOPath path, boolean append) throws IOException {
         return getDevice(path.getPrefix(), false).write(path.getPath(), append);
     }
 
-    InputStream read(IOPath iopath) throws IOException {
+    static InputStream read(IOPath iopath) throws IOException {
         return getDevice(iopath.getPrefix(), true).read(iopath.getPath());
     }
 
-    public void write(IOPath path, byte[] content){
+    public static void write(IOPath path, byte[] content){
         write(path, content, false);
     }
 
-    public void write(IOPath path, byte[] content, boolean append){
+    public static void write(IOPath path, byte[] content, boolean append){
         OutputStream output = null;
         try {
             output = write(path, append);
@@ -127,15 +120,15 @@ public class Disk implements Closeable {
         }
     }
 
-    public void write(IOPath path, String content){
+    public static void write(IOPath path, String content){
         write(path, content.getBytes(), false);
     }
 
-    public void write(IOPath path, String content, boolean append) {
+    public static void write(IOPath path, String content, boolean append) {
         write(path, content.getBytes(), append);
     }
 
-    public long lastModified(IOPath iopath){
+    public static long lastModified(IOPath iopath){
         try {
             return getDevice(iopath.getPrefix(), true).lastModified(iopath.getPath());
         } catch (IOException e) {
@@ -143,7 +136,7 @@ public class Disk implements Closeable {
         }
     }
 
-    public boolean setLastModified(IOPath iopath, long lastModified){
+    public static boolean setLastModified(IOPath iopath, long lastModified){
         try {
             return getDevice(iopath.getPrefix(), true).setLastModified(iopath.getPath(), lastModified);
         } catch (IOException e) {
@@ -151,7 +144,7 @@ public class Disk implements Closeable {
         }
     }
 
-    public IOPath[] list(IOPath iopath) {
+    public static IOPath[] list(IOPath iopath) {
         try {
             return getDevice(iopath.getPrefix(), true).listDir(iopath);
         } catch (IOException e) {
@@ -159,7 +152,7 @@ public class Disk implements Closeable {
         }
     }
 
-    private IODevice getDevice(String label, boolean readonly) throws IOException {
+    private static IODevice getDevice(String label, boolean readonly) throws IOException {
         IODevice device = devices.get(label);
         if (device == null)
             throw new IOException("unknown I/O device '"+label+"'");
@@ -168,7 +161,7 @@ public class Disk implements Closeable {
         return device;
     }
 
-    public byte[] readBytes(IOPath iopath) throws IOException {
+    public static byte[] readBytes(IOPath iopath) throws IOException {
         try (InputStream input = read(iopath)) {
             long length = length(iopath);
             byte[] bytes = new byte[(int) length];
@@ -178,7 +171,7 @@ public class Disk implements Closeable {
         }
     }
 
-    public void copy(IOPath src, IOPath dst) throws IOException {
+    public static void copy(IOPath src, IOPath dst) throws IOException {
         IODevice deviceSrc = getDevice(src.getPrefix(), true);
         IODevice deviceDst = getDevice(dst.getPrefix(), false);
 
@@ -192,7 +185,7 @@ public class Disk implements Closeable {
         }
     }
 
-    private void copy(IODevice deviceSrc, IODevice deviceDst, IOPath src, IOPath dst) throws IOException {
+    private static void copy(IODevice deviceSrc, IODevice deviceDst, IOPath src, IOPath dst) throws IOException {
         if (isFile(dst))
             throw new IOException("destination file is already exists");
         long length = length(src);
@@ -203,7 +196,7 @@ public class Disk implements Closeable {
         }
     }
 
-    public void move(IOPath src, IOPath dst) throws IOException {
+    public static void move(IOPath src, IOPath dst) throws IOException {
         IODevice deviceSrc = getDevice(src.getPrefix(), true);
         IODevice deviceDst = getDevice(dst.getPrefix(), false);
 
@@ -217,23 +210,23 @@ public class Disk implements Closeable {
         }
     }
 
-    public String readString(IOPath iopath) throws IOException {
+    public static String readString(IOPath iopath) throws IOException {
         byte[] bytes = readBytes(iopath);
         return new String(bytes, StandardCharsets.UTF_8);
     }
 
-    public String readString(IOPath iopath, String charset) throws IOException {
+    public static String readString(IOPath iopath, String charset) throws IOException {
         byte[] bytes = readBytes(iopath);
         return new String(bytes, charset);
     }
 
-    public void read(Properties properties, IOPath iopath) throws IOException {
+    public static void read(Properties properties, IOPath iopath) throws IOException {
         try (InputStream input = read(iopath)) {
             properties.load(input);
         }
     }
 
-    public boolean isExist(IOPath iopath) {
+    public static boolean isExist(IOPath iopath) {
         try {
             return getDevice(iopath.getPrefix(), true).exists(iopath.getPath());
         } catch (IOException e) {
@@ -241,7 +234,7 @@ public class Disk implements Closeable {
         }
     }
 
-    public boolean isDirectory(IOPath iopath) {
+    public static boolean isDirectory(IOPath iopath) {
         try {
             return getDevice(iopath.getPrefix(), true).isDirectory(iopath.getPath());
         } catch (IOException e) {
@@ -249,7 +242,7 @@ public class Disk implements Closeable {
         }
     }
 
-    public boolean isFile(IOPath iopath) {
+    public static boolean isFile(IOPath iopath) {
         try {
             return getDevice(iopath.getPrefix(), true).isFile(iopath.getPath());
         } catch (IOException e) {
@@ -261,7 +254,7 @@ public class Disk implements Closeable {
      * @param iopath path
      * @return true if iopath points to symlink
      */
-    public boolean isLink(IOPath iopath) {
+    public static boolean isLink(IOPath iopath) {
         try {
             return getDevice(iopath.getPrefix(), true).isLink(iopath.getPath());
         } catch (IOException e) {
@@ -269,7 +262,7 @@ public class Disk implements Closeable {
         }
     }
 
-    public boolean mkdirs(IOPath iopath) {
+    public static boolean mkdirs(IOPath iopath) {
         try {
             return getDevice(iopath.getPrefix(), false).mkdirs(iopath.getPath());
         } catch (IOException e) {
@@ -281,11 +274,11 @@ public class Disk implements Closeable {
      * @param iopath path of file, symlink or empty directory
      * @return true if deleted anything
      */
-    public boolean delete(IOPath iopath) throws IOException {
+    public static boolean delete(IOPath iopath) throws IOException {
         return getDevice(iopath.getPrefix(), false).delete(iopath.getPath());
     }
 
-    public File getFile(IOPath iopath) {
+    public static File getFile(IOPath iopath) {
         try {
             return getDevice(iopath.getPrefix(), true).getFile(iopath.getPath());
         } catch (IOException e){
@@ -296,7 +289,7 @@ public class Disk implements Closeable {
     /**
      * Delete file/directory recursive
      */
-    public void deleteTree(IOPath path) throws IOException {
+    public static void deleteTree(IOPath path) throws IOException {
         clearDirectory(path);
         delete(path);
     }
@@ -304,7 +297,7 @@ public class Disk implements Closeable {
     /**
      * Delete all directory content
      */
-    public void clearDirectory(IOPath iopath) throws IOException {
+    public static void clearDirectory(IOPath iopath) throws IOException {
         IOPath[] paths = list(iopath);
         if (paths == null)
             return;
@@ -317,11 +310,11 @@ public class Disk implements Closeable {
         }
     }
 
-    public boolean hasDevice(String label) {
+    public static boolean hasDevice(String label) {
         return devices.containsKey(label);
     }
 
-    public long length(IOPath path) {
+    public static long length(IOPath path) {
         try {
             return getDevice(path.getPrefix(), true).length(path.getPath());
         } catch (IOException e) {
@@ -329,11 +322,11 @@ public class Disk implements Closeable {
         }
     }
 
-    public Collection<String> getLabels() {
+    public static Collection<String> getLabels() {
         return devices.keySet();
     }
 
-    public long getUsableSpace(IOPath path) {
+    public static long getUsableSpace(IOPath path) {
         try {
             return getDevice(path.getPrefix(), true).getUsableSpace(path.getPath());
         } catch (IOException e) {

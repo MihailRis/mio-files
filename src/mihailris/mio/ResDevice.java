@@ -11,13 +11,11 @@ import java.net.URL;
  */
 public class ResDevice extends IODeviceAdapter {
     private final String jarDir;
-    private final Disk disk;
 
-    public ResDevice(String jarDir, Disk disk) {
+    public ResDevice(String jarDir) {
         if (!(jarDir.isEmpty() || jarDir.endsWith("/")))
             jarDir += "/";
         this.jarDir = jarDir;
-        this.disk = disk;
     }
 
     @Override
@@ -49,7 +47,7 @@ public class ResDevice extends IODeviceAdapter {
     public IOPath[] listDir(IOPath path) {
         IOPath[] paths;
         try {
-            String[] lines = disk.readString(path.child("_files.txt")).split("\n");
+            String[] lines = path.child("_files.txt").readString().split("\n");
             int count = 0;
             for (int i = 0; i < lines.length; i++) {
                 lines[i] = lines[i].trim();

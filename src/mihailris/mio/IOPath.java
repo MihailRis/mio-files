@@ -1,5 +1,6 @@
 package mihailris.mio;
 
+import java.io.IOException;
 import java.util.Objects;
 
 @SuppressWarnings({"UnusedReturnValue", "unused"})
@@ -192,4 +193,85 @@ public class IOPath {
     public IOPath extended(String ext) {
         return IOPath.get(path+ext);
     }
+
+    public void write(String string) {
+        Disk.write(this, string);
+    }
+
+    public void append(String string) {
+        Disk.write(this, string, true);
+    }
+
+    public void write(byte[] bytes) {
+        Disk.write(this, bytes);
+    }
+
+    public void append(byte[] bytes) {
+        Disk.write(this, bytes, true);
+    }
+
+    public String readString() throws IOException {
+        return Disk.readString(this);
+    }
+
+    public String readString(String charset) throws IOException {
+        return Disk.readString(this, charset);
+    }
+
+    public byte[] readBytes() throws IOException {
+        return Disk.readBytes(this);
+    }
+
+    public long length() {
+        return Disk.length(this);
+    }
+
+    public long lastModified() {
+        return Disk.lastModified(this);
+    }
+
+    public void mkdirs() {
+        Disk.mkdirs(this);
+    }
+
+    public void delete() throws IOException {
+        Disk.delete(this);
+    }
+
+    public void deleteTree() throws IOException {
+        Disk.deleteTree(this);
+    }
+
+    public boolean isExist(){
+        return Disk.isExist(this);
+    }
+
+    public boolean isFile() {
+        return Disk.isFile(this);
+    }
+
+    public boolean isLink() {
+        return Disk.isLink(this);
+    }
+
+    public boolean isDirectory() {
+        return Disk.isDirectory(this);
+    }
+
+    public long getUsableSpace() {
+        return Disk.getUsableSpace(this);
+    }
+
+    public IOPath[] list() {
+        return Disk.list(this);
+    }
+
+    public boolean setLastModified(long lastModified) {
+        return Disk.setLastModified(this, lastModified);
+    }
+
+    public void clearDirectory() throws IOException {
+        Disk.clearDirectory(this);
+    }
 }
+
