@@ -68,3 +68,4 @@ disk.removeDevice("user");
 ```
 
 Creating millions devices is only affecting memory and performance
+
