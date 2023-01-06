@@ -5,8 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class MemoryDevice extends IODeviceAdapter {
-    private static final int KiB = 1024;
-    private static final int MiB = KiB * 1024;
+    public static final int KiB = 1024;
+    public static final int MiB = KiB * 1024;
     protected boolean readonly;
     protected DirNode root;
     private final long totalSpace;
