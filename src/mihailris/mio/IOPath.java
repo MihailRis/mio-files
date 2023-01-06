@@ -2,6 +2,7 @@ package mihailris.mio;
 
 import java.io.IOException;
 import java.util.Objects;
+import java.util.Properties;
 
 @SuppressWarnings({"UnusedReturnValue", "unused"})
 public class IOPath {
@@ -220,6 +221,10 @@ public class IOPath {
 
     public byte[] readBytes() throws IOException {
         return Disk.readBytes(this);
+    }
+
+    public void read(Properties properties) throws IOException {
+        Disk.read(properties, this);
     }
 
     public long length() {
