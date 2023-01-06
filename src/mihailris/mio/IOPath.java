@@ -242,8 +242,8 @@ public class IOPath {
         Disk.deleteTree(this);
     }
 
-    public boolean isExist(){
-        return Disk.isExist(this);
+    public boolean isExists(){
+        return Disk.isExists(this);
     }
 
     public boolean isFile() {

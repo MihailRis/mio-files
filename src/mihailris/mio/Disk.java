@@ -226,7 +226,7 @@ public class Disk {
         }
     }
 
-    public static boolean isExist(IOPath iopath) {
+    public static boolean isExists(IOPath iopath) {
         try {
             return getDevice(iopath.getPrefix(), true).exists(iopath.getPath());
         } catch (IOException e) {
