@@ -2,6 +2,8 @@ package mihailris.mio;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -122,5 +124,10 @@ public class IOUtil {
                 tree(file, builder, indent+1);
             }
         }
+    }
+
+    public static final Comparator<IOPath> modifyDateComparator = Comparator.comparingLong(IOPath::lastModified).reversed();
+    public static void sortByModificationDate(IOPath[] files) {
+        Arrays.sort(files, modifyDateComparator);
     }
 }
