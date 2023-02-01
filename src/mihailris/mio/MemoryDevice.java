@@ -1,6 +1,9 @@
 package mihailris.mio;
 
-import java.io.*;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -10,7 +13,7 @@ public class MemoryDevice extends IODeviceAdapter {
     protected boolean readonly;
     protected DirNode root;
     private final long totalSpace;
-    private long usableSpace;
+    long usableSpace;
 
     public MemoryDevice() {
         this(MiB*32);
@@ -42,23 +45,7 @@ public class MemoryDevice extends IODeviceAdapter {
         if (!(node instanceof FileNode))
             throw new FileNotFoundException(path);
         FileNode file = (FileNode) node;
-        return new ByteArrayOutputStream() {
-            @Override
-            public void close() throws IOException {
-                super.close();
-                byte[] bytes = toByteArray();
-                if (!append) {
-                    usableSpace -= (bytes.length - file.content.length);
-                    file.content = bytes;
-                    return;
-                }
-                byte[] newContent = new byte[file.content.length + bytes.length];
-                System.arraycopy(file.content, 0, newContent, 0, file.content.length);
-                System.arraycopy(bytes, 0, newContent, file.content.length, bytes.length);
-                usableSpace -= bytes.length;
-                file.content = newContent;
-            }
-        };
+        return file.file.write(this, append);
     }
 
     @Override
@@ -109,7 +96,7 @@ public class MemoryDevice extends IODeviceAdapter {
             return false;
         }
         if (node instanceof FileNode){
-            usableSpace += ((FileNode) node).content.length;
+            usableSpace += ((FileNode) node).file.length();
         }
         dir.nodes.put(node.name, null);
         return true;
@@ -125,7 +112,7 @@ public class MemoryDevice extends IODeviceAdapter {
             throw new IOException(path+" is a directory");
 
         FileNode file = (FileNode) node;
-        return new ByteArrayInputStream(file.content);
+        return file.file.read();
     }
 
     @Override
@@ -154,7 +141,7 @@ public class MemoryDevice extends IODeviceAdapter {
         if (!(node instanceof FileNode))
             return -1;
 
-        return ((FileNode)node).content.length;
+        return ((FileNode)node).file.length();
     }
 
     @Override
@@ -183,16 +170,6 @@ public class MemoryDevice extends IODeviceAdapter {
     @Override
     public boolean isLink(String path) {
         return getNode(path) instanceof LinkNode;
-    }
-
-    static class Node {
-        DirNode parent;
-        long lastModified;
-        String name;
-        Node(String name, DirNode parent){
-            this.name = name;
-            this.parent = parent;
-        }
     }
 
     private Node getNode(String path){
@@ -232,7 +209,7 @@ public class MemoryDevice extends IODeviceAdapter {
                 node = dir.nodes.get(element);
                 if (node == null) {
                     if (i == elements.length-1 && create){
-                        FileNode file = new FileNode(element, dir, new byte[0]);
+                        FileNode file = new FileNode(element, dir, new BytesMemoryFile(new byte[0]));
                         dir.nodes.put(element, file);
                         return file;
                     }
@@ -250,6 +227,19 @@ public class MemoryDevice extends IODeviceAdapter {
             return node;
         }
         return null;
+    }
+
+    static abstract class Node {
+        DirNode parent;
+        long lastModified;
+        String name;
+        Node(String name, DirNode parent){
+            this.name = name;
+            this.parent = parent;
+        }
+
+        void free() {
+        }
     }
 
     static class DirNode extends Node {
@@ -271,11 +261,17 @@ public class MemoryDevice extends IODeviceAdapter {
     }
 
     static class FileNode extends Node {
-        byte[] content;
+        IMemoryFile file;
 
-        FileNode(String name, DirNode parent, byte[] content) {
+        FileNode(String name, DirNode parent, IMemoryFile file) {
             super(name, parent);
-            this.content = content;
+            this.file = file;
+        }
+
+        @Override
+        void free() {
+            super.free();
+            file.close();
         }
     }
 }
