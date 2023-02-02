@@ -1,7 +1,7 @@
 package mihailris.mio.archives;
 
 import mihailris.mio.MemoryDevice;
-import mihailris.mio.JavaMemoryFile;
+import mihailris.mio.ReadonlyMemoryFile;
 
 import java.io.*;
 
@@ -175,7 +175,7 @@ public class TARFile implements Closeable {
                 device.mkdirs(path.substring(0, path.lastIndexOf('/')));
             }
             device.setLastModified(path, entry.mtime);
-            device.set(path, new JavaMemoryFile(file, entry.offset, entry.size));
+            device.set(path, new ReadonlyMemoryFile(file, entry.offset, entry.size));
         }
     }
 

@@ -2,22 +2,22 @@ package mihailris.mio;
 
 import java.io.*;
 
-public class JavaMemoryFile implements IMemoryFile {
+public class ReadonlyMemoryFile implements IMemoryFile {
     private final File file;
     private final long offset;
     private final long length;
 
-    public JavaMemoryFile(File file, long offset, long length) {
+    public ReadonlyMemoryFile(File file, long offset, long length) {
         this.file = file;
         this.offset = offset;
         this.length = length;
     }
 
-    public JavaMemoryFile(File file, long offset) {
+    public ReadonlyMemoryFile(File file, long offset) {
         this(file, offset, file.length()-offset);
     }
 
-    public JavaMemoryFile(File file) {
+    public ReadonlyMemoryFile(File file) {
         this(file, 0, file.length());
     }
 
@@ -52,7 +52,7 @@ public class JavaMemoryFile implements IMemoryFile {
 
     @Override
     public OutputStream write(MemoryDevice device, boolean append) throws IOException {
-        return null;
+        throw new IOException(getClass().getSimpleName()+" is read-only");
     }
 
     @Override
