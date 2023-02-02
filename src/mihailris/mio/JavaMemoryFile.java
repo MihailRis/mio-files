@@ -2,19 +2,29 @@ package mihailris.mio;
 
 import java.io.*;
 
-public class RafMemoryFile implements IMemoryFile {
+public class JavaMemoryFile implements IMemoryFile {
     private final File file;
     private final long offset;
     private final long length;
 
-    public RafMemoryFile(File file, long offset, long length) {
+    public JavaMemoryFile(File file, long offset, long length) {
         this.file = file;
         this.offset = offset;
         this.length = length;
     }
 
+    public JavaMemoryFile(File file, long offset) {
+        this(file, offset, file.length()-offset);
+    }
+
+    public JavaMemoryFile(File file) {
+        this(file, 0, file.length());
+    }
+
     @Override
     public InputStream read() throws IOException {
+        if (offset == 0)
+            return new FileInputStream(file);
         RandomAccessFile raf = new RandomAccessFile(file, "r");
         raf.seek(offset);
         return new InputStream() {
