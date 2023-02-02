@@ -10,13 +10,14 @@ import java.util.Map;
 public class MemoryDevice extends IODeviceAdapter {
     public static final int KiB = 1024;
     public static final int MiB = KiB * 1024;
+    public static final int UNLIMITED = Integer.MAX_VALUE;
     protected boolean readonly;
     protected DirNode root;
     private final long totalSpace;
     long usableSpace;
 
     public MemoryDevice() {
-        this(MiB*32);
+        this(UNLIMITED);
     }
 
     public MemoryDevice(int usableSpace) {
@@ -46,6 +47,14 @@ public class MemoryDevice extends IODeviceAdapter {
             throw new FileNotFoundException(path);
         FileNode file = (FileNode) node;
         return file.file.write(this, append);
+    }
+
+    public void set(String path, IMemoryFile iMemoryFile) throws IOException {
+        Node node = getWriteableNode(path, true);
+        if (!(node instanceof FileNode))
+            throw new FileNotFoundException(path);
+        FileNode file = (FileNode) node;
+        file.setFile(iMemoryFile);
     }
 
     @Override
@@ -265,6 +274,12 @@ public class MemoryDevice extends IODeviceAdapter {
 
         FileNode(String name, DirNode parent, IMemoryFile file) {
             super(name, parent);
+            this.file = file;
+        }
+
+        public void setFile(IMemoryFile file) {
+            if (this.file != null)
+                this.file.close();
             this.file = file;
         }
 

@@ -15,7 +15,7 @@ public class RafMemoryFile implements IMemoryFile {
 
     @Override
     public InputStream read() throws IOException {
-        RandomAccessFile raf = new RandomAccessFile(file, "rb");
+        RandomAccessFile raf = new RandomAccessFile(file, "r");
         raf.seek(offset);
         return new InputStream() {
             @Override
