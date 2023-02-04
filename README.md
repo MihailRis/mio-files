@@ -66,6 +66,12 @@ Remove IODevice from Disk (does not affect real files):
 Disk.removeDevice("user");
 ```
 
+Add IODevice temporary to use with Disk:
+```java
+try (Disk.TempLabelHandle handle = Disk.addDeviceTemporary(device)) {
+    IOPath.get(handle.label+":test.txt").write("Some text");    
+}
+```
 
 ## Archives
 
