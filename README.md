@@ -11,60 +11,94 @@ Implementations:
 
 Example of initialization:
 ```java
-Disk disk = new Disk(Main.class); // use any class instead of Main in the same .jar as the application
-// right here Disk has no any pre-defined IODevice added
-// you need to configure it yourself
-
 // creates ResDevice with label 'res' at root of java resources
-disk.createResDevice("res", "/");
+Disk.createResDevice("res", "/");
 // creates DirDevice from given directory
-disk.createDirDevice("user", new File(gameDir));
+Disk.createDirDevice("user", new File(gameDir));
 ```
 
+## Reading
 Reading string:
 ```java
-String text = disk.readString(IOPath.get("res:texts/names.txt"));
+String text = IOPath.get("res:texts/names.txt").readString();
 // or
-String text = disk.readString(IOPath.get("res:texts/names.txt"), charset);
+String text = IOPath.get("res:texts/names.txt").readString(charset);
 ```
 
 Reading bytes array:
 ```java
-byte[] bytes = disk.readBytes(IOPath.get("res:colomaps/lights.cm"));
+byte[] bytes = IOPath.get("res:colomaps/lights.cm").readBytes();
 ```
 
 Reading properties:
 ```java
 Properties properties = new Properties();
-disk.read(IOPath.get("res:engine_settings.properties"), properties);
+IOPath.get("res:engine_settings.properties").read(properties);
 ```
 
+
+## Writing
 Write string:
 ```java
 // 'user' device is added with Disk.createDirDevice("user", new File(...));
-disk.write(IOPath.get("user:error_log.txt"), getErrorLog());
+IOPath.get("user:error_log.txt").write(getErrorLog());
 ```
 
 Write bytes array:
 ```java
-IOPath.get(IOPath.get("user:save.bin")).writeBytes(bytes);
+IOPath.get("user:save.bin").write(bytes);
 ```
 
 Work with external files:
 ```java
 // initialization
-disk.createAbsDevice();
+Disk.createAbsDevice();
 // create absolute IOPath
-IOPath file = disk.absolute("/home/user/segfault.wav");
+IOPath file = Disk.absolute("/home/user/segfault.wav");
 // -> abs:home/user/segfault.wav
 ```
 Add custom IODevice:
 ```java
-disk.addDevice("name", new ...);
+Disk.addDevice("name", new ...);
 ```
 Remove IODevice from Disk (does not affect real files):
 ```java
-disk.removeDevice("user");
+Disk.removeDevice("user");
+```
+
+
+## Archives
+
+### ZIP:
+
+Create memory device based on ZIP-file content:
+```java
+MemoryDevice device = ZIPFile.createDevice(IOPath.get("user:archive.zip"));
+```
+
+
+Unpack ZIP-file:
+```java
+ZIPFile.unpack(IOPath.get("user:archive.zip"), IOPath.get("user:destination/path"));
+```
+
+### TAR:
+
+Create memory device based on TAR-file content:
+```java
+MemoryDevice device = TARFile.createDevice(new File("some_archive.tar"));
+```
+
+Unpack TAR-file into an existing MemoryDevice:
+```java
+MemoryDevice device = ...;
+TARFile.readInto(new File("some_archive.tar"), device);
+// it only store offsets to files content, not actual content
+```
+
+Unpack TAR-file:
+```java
+TARFile.unpack(new File("some_archive.tar"), IOPath.get("user:destination/path"));
 ```
 
 Creating millions devices is only affecting memory and performance

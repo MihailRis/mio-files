@@ -1,12 +1,11 @@
 package mihailris.mio;
 
-import java.io.*;
-import java.util.ArrayList;
+import java.io.EOFException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.List;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 public class IOUtil {
     public static void transfer(InputStream input, OutputStream output, long length) throws IOException {
@@ -26,61 +25,6 @@ public class IOUtil {
             if (read < 0) {
                 throw new EOFException();
             }
-        }
-    }
-
-    /**
-     * Unzip all content from ZIP file to destination directory.
-     * Tries to delete unpacked files on exception
-     * @param source target ZIP file
-     * @param dest destination directory
-     * @throws IOException on I/O errors
-     */
-    public static void unpack(IOPath source, IOPath dest) throws IOException {
-
-        List<IOPath> created = new ArrayList<>();
-        try (InputStream input = Disk.read(source)) {
-            ZipInputStream zis = new ZipInputStream(input);
-            ZipEntry zipEntry = zis.getNextEntry();
-            long available = Disk.getUsableSpace(dest);
-            while (zipEntry != null) {
-                IOPath element = dest.child(zipEntry.getName());
-                if (zipEntry.isDirectory()) {
-                    if (!element.isDirectory()) {
-                        element.mkdirs();
-                        created.add(element);
-                    }
-                } else {
-                    try {
-                        if (zipEntry.getSize() >= available)
-                            throw new IOException("no enough space to unpack " + zipEntry.getName() +
-                                    " (" + zipEntry.getSize() + " B)");
-                        long size = zipEntry.getSize();
-                        byte[] bytes = new byte[(int) size];
-                        int offset = 0;
-                        while (offset < size) {
-                            offset += zis.read(bytes, offset, (int) (size - offset));
-                        }
-                        element.write(bytes);
-                        created.add(element);
-                    } catch (IOException e) {
-                        // Revert creations
-                        for (IOPath path : created) {
-                            try {
-                                path.delete();
-                            } catch (IOException e1) {
-                                e1.printStackTrace();
-                            }
-                        }
-                        zis.closeEntry();
-                        zis.close();
-                        throw e;
-                    }
-                }
-                zipEntry = zis.getNextEntry();
-            }
-            zis.closeEntry();
-            zis.close();
         }
     }
 

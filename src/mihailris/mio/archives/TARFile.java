@@ -1,7 +1,6 @@
 package mihailris.mio.archives;
 
-import mihailris.mio.MemoryDevice;
-import mihailris.mio.ReadonlyMemoryFile;
+import mihailris.mio.*;
 
 import java.io.*;
 
@@ -176,6 +175,37 @@ public class TARFile implements Closeable {
             }
             device.setLastModified(path, entry.mtime);
             device.set(path, new ReadonlyMemoryFile(file, entry.offset, entry.size));
+        }
+    }
+
+    public void readInto(IOPath dest) throws IOException {
+        IODevice device = Disk.getDevice(dest.getPrefix());
+        while (hasNext()) {
+            TARFile.TAREntry entry = readNext();
+            String path = entry.name;
+            if (entry.type != '0' && entry.type != '\0')
+                continue;
+            IOPath iopath = dest.child(path);
+            iopath.parent().mkdirs();
+            iopath.setLastModified(entry.mtime);
+            if (device instanceof MemoryDevice) {
+                MemoryDevice memoryDevice = (MemoryDevice) device;
+                memoryDevice.set(iopath.getPath(), new ReadonlyMemoryFile(file, entry.offset, entry.size));
+            } else {
+                iopath.write(readContentBytes(entry));
+            }
+        }
+    }
+
+    public static void readInto(File file, MemoryDevice device) throws IOException {
+        try (TARFile tarFile = new TARFile(file)) {
+            tarFile.readInto(device);
+        }
+    }
+
+    public static void unpack(File file, IOPath dest) throws IOException {
+        try (TARFile tarFile = new TARFile(file)) {
+            tarFile.readInto(dest);
         }
     }
 

@@ -10,6 +10,7 @@ import java.util.Properties;
 
 @SuppressWarnings({"unused", "UnusedReturnValue"})
 public class Disk {
+    private static long TEMP_ID = 0;
     public static final int VERSION_MAJOR = 2;
     public static final int VERSION_MINOR = 1;
     public static final int VERSION_PATCH = 2;
@@ -29,6 +30,12 @@ public class Disk {
                 e.printStackTrace();
             }
         }
+    }
+
+    public static TempLabelHandle addDeviceTemporary(IODevice device) {
+        String label = "$" + Long.toHexString(++TEMP_ID);
+        addDevice(label, device);
+        return new TempLabelHandle(label);
     }
 
     public static void addDevice(String label, IODevice device){
@@ -96,7 +103,7 @@ public class Disk {
         return getDevice(path.getPrefix(), false).write(path.getPath(), append);
     }
 
-    static InputStream read(IOPath iopath) throws IOException {
+    public static InputStream read(IOPath iopath) throws IOException {
         return getDevice(iopath.getPrefix(), true).read(iopath.getPath());
     }
 
@@ -335,6 +342,23 @@ public class Disk {
             return getDevice(path.getPrefix(), true).getUsableSpace(path.getPath());
         } catch (IOException e) {
             return -1;
+        }
+    }
+
+    public static IODevice getDevice(String label) throws IOException {
+        return getDevice(label, true);
+    }
+
+    public static class TempLabelHandle implements Closeable {
+        public final String label;
+
+        public TempLabelHandle(String label) {
+            this.label = label;
+        }
+
+        @Override
+        public void close() throws IOException {
+            Disk.removeDevice(label);
         }
     }
 }
