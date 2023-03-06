@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 
 public class IORandomAccessFile extends RandomAccessFile implements IORandomAccess {
+    private static final byte[] zerosBuffer = new byte[512];
     public IORandomAccessFile(String name, String mode) throws FileNotFoundException {
         super(name, mode);
     }
@@ -27,5 +28,10 @@ public class IORandomAccessFile extends RandomAccessFile implements IORandomAcce
     @Override
     public long available() throws IOException {
         return super.length() - position();
+    }
+
+    @Override
+    public void setLength(int size) throws IOException {
+        super.setLength(size);
     }
 }

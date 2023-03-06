@@ -69,4 +69,14 @@ public class BytesMemoryFile implements IMemoryFile {
     public IORandomAccess openRandomAccess(boolean writeable) throws IOException {
         return new BytesMemoryFileRaf(this);
     }
+
+    public void setLength(int size) {
+        if (size <= this.length) {
+            grow(size);
+            return;
+        }
+        byte[] newContent = new byte[size];
+        System.arraycopy(content, 0, newContent, 0, size);
+        content = newContent;
+    }
 }

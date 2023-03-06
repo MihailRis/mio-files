@@ -29,4 +29,6 @@ public interface IORandomAccess extends AutoCloseable {
             n += count;
         } while (n < len);
     }
+
+    void setLength(int size) throws IOException;
 }

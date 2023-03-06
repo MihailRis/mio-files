@@ -61,6 +61,11 @@ public class BytesMemoryFileRaf implements IORandomAccess {
     }
 
     @Override
+    public void setLength(int size) {
+        file.setLength(size);
+    }
+
+    @Override
     public void close() {
 
     }
