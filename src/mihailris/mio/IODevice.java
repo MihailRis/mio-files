@@ -40,4 +40,8 @@ public interface IODevice extends ReadDevice, Closeable {
 
     // Special
     File getFile(String path);
+
+    default IORandomAccess openRandomAccess(String path, boolean writeable) throws IOException {
+        throw new IOException("device "+getClass()+" does not support random access");
+    }
 }

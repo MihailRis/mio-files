@@ -113,4 +113,9 @@ public class DirDevice extends IODeviceAdapter {
     public File getFile(String path) {
         return new File(directory, path);
     }
+
+    @Override
+    public IORandomAccess openRandomAccess(String path, boolean writeable) throws IOException {
+        return new IORandomAccessFile(new File(directory, path), "rw");
+    }
 }

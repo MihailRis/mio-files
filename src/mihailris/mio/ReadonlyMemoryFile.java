@@ -22,7 +22,7 @@ public class ReadonlyMemoryFile implements IMemoryFile {
     }
 
     @Override
-    public InputStream read() throws IOException {
+    public InputStream readStream() throws IOException {
         if (offset == 0)
             return new FileInputStream(file);
         RandomAccessFile raf = new RandomAccessFile(file, "r");

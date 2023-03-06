@@ -121,7 +121,7 @@ public class MemoryDevice extends IODeviceAdapter {
             throw new IOException(path+" is a directory");
 
         FileNode file = (FileNode) node;
-        return file.file.read();
+        return file.file.readStream();
     }
 
     @Override
@@ -288,5 +288,14 @@ public class MemoryDevice extends IODeviceAdapter {
             super.free();
             file.close();
         }
+    }
+
+    @Override
+    public IORandomAccess openRandomAccess(String path, boolean writeable) throws IOException {
+        Node node = getWriteableNode(path, writeable);
+        if (!(node instanceof FileNode))
+            throw new FileNotFoundException(path);
+        FileNode file = (FileNode) node;
+        return file.file.openRandomAccess(writeable);
     }
 }

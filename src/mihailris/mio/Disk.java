@@ -99,6 +99,10 @@ public class Disk {
         return classJar.startsWith("jar:");
     }
 
+    public static IORandomAccess openRandomAccess(IOPath iopath, boolean writeable) throws IOException {
+        return getDevice(iopath.getPrefix(), !writeable).openRandomAccess(iopath.getPath(), writeable);
+    }
+
     private static OutputStream write(IOPath path, boolean append) throws IOException {
         return getDevice(path.getPrefix(), false).write(path.getPath(), append);
     }

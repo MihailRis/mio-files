@@ -99,4 +99,9 @@ public class AbsDevice extends IODeviceAdapter {
     public File getFile(String path) {
         return new File(path);
     }
+
+    @Override
+    public IORandomAccess openRandomAccess(String path, boolean writeable) throws IOException {
+        return new IORandomAccessFile(new File(path), "rw");
+    }
 }
