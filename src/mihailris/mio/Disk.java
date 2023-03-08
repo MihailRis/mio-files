@@ -12,7 +12,7 @@ import java.util.Properties;
 public class Disk {
     private static long TEMP_ID = 0;
     public static final int VERSION_MAJOR = 2;
-    public static final int VERSION_MINOR = 2;
+    public static final int VERSION_MINOR = 3;
     public static final int VERSION_PATCH = 0;
     public static final String VERSION_STRING = VERSION_MAJOR+"."+VERSION_MINOR+"."+VERSION_PATCH;
     public static long totalRead;
@@ -242,27 +242,24 @@ public class Disk {
     }
 
     public static boolean isExists(IOPath iopath) {
-        try {
-            return getDevice(iopath.getPrefix(), true).exists(iopath.getPath());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        IODevice device = devices.get(iopath.getPrefix());
+        if (device == null)
+            return false;
+        return device.exists(iopath.getPath());
     }
 
     public static boolean isDirectory(IOPath iopath) {
-        try {
-            return getDevice(iopath.getPrefix(), true).isDirectory(iopath.getPath());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        IODevice device = devices.get(iopath.getPrefix());
+        if (device == null)
+            return false;
+        return device.isDirectory(iopath.getPath());
     }
 
     public static boolean isFile(IOPath iopath) {
-        try {
-            return getDevice(iopath.getPrefix(), true).isFile(iopath.getPath());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        IODevice device = devices.get(iopath.getPrefix());
+        if (device == null)
+            return false;
+        return device.isFile(iopath.getPath());
     }
 
     /**
@@ -270,11 +267,10 @@ public class Disk {
      * @return true if iopath points to symlink
      */
     public static boolean isLink(IOPath iopath) {
-        try {
-            return getDevice(iopath.getPrefix(), true).isLink(iopath.getPath());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        IODevice device = devices.get(iopath.getPrefix());
+        if (device == null)
+            return false;
+        return device.isLink(iopath.getPath());
     }
 
     public static boolean mkdirs(IOPath iopath) {
