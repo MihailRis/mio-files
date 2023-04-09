@@ -11,11 +11,17 @@ import java.net.URL;
  */
 public class ResDevice extends IODeviceAdapter {
     private final String jarDir;
+    private final ClassLoader classLoader;
 
-    public ResDevice(String jarDir) {
+    public ResDevice(Class<?> cls, String jarDir) {
         if (!(jarDir.isEmpty() || jarDir.endsWith("/")))
             jarDir += "/";
         this.jarDir = jarDir;
+        this.classLoader = cls.getClassLoader();
+    }
+
+    public ResDevice(String jarDir) {
+        this(Disk.class, jarDir);
     }
 
     @Override
@@ -25,7 +31,7 @@ public class ResDevice extends IODeviceAdapter {
 
     @Override
     public InputStream read(String path) throws IOException {
-        InputStream is = Disk.class.getResourceAsStream(jarDir+path);
+        InputStream is = classLoader.getResourceAsStream(jarDir+path);
         if (is == null)
             throw new IOException("could not to read internal file "+path);
         return is;
@@ -33,7 +39,7 @@ public class ResDevice extends IODeviceAdapter {
 
     @Override
     public long length(String path) {
-        URL url = Disk.class.getResource(jarDir+path);
+        URL url = classLoader.getResource(jarDir+path);
         if (url == null)
             return -1;
         try {
@@ -70,7 +76,7 @@ public class ResDevice extends IODeviceAdapter {
 
     @Override
     public long lastModified(String path) {
-        URL url = Disk.class.getResource(jarDir+path);
+        URL url = classLoader.getResource(jarDir+path);
         if (url == null)
             return -1;
         try {
@@ -88,13 +94,13 @@ public class ResDevice extends IODeviceAdapter {
 
     @Override
     public boolean exists(String path) {
-        return Disk.class.getResource(jarDir+path) != null;
+        return classLoader.getResource(jarDir+path) != null;
     }
 
     @Override
     public boolean isFile(String path) {
         try {
-            InputStream input = Disk.class.getResourceAsStream(jarDir+path);
+            InputStream input = classLoader.getResourceAsStream(jarDir+path);
             if (input == null)
                 return false;
             boolean isfile = input.available() > 0;
@@ -108,7 +114,7 @@ public class ResDevice extends IODeviceAdapter {
     @Override
     public boolean isDirectory(String path) {
         try {
-            InputStream input = Disk.class.getResourceAsStream(jarDir+path);
+            InputStream input = classLoader.getResourceAsStream(jarDir+path);
             if (input == null)
                 return false;
             boolean isdir = input.available() == 0;

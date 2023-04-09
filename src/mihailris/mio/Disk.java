@@ -13,7 +13,7 @@ public class Disk {
     private static long TEMP_ID = 0;
     public static final int VERSION_MAJOR = 2;
     public static final int VERSION_MINOR = 3;
-    public static final int VERSION_PATCH = 0;
+    public static final int VERSION_PATCH = 1;
     public static final String VERSION_STRING = VERSION_MAJOR+"."+VERSION_MINOR+"."+VERSION_PATCH;
     public static long totalRead;
     public static long totalWrite;
@@ -57,6 +57,10 @@ public class Disk {
 
     public static void createResDevice(String label, String jarDir){
         devices.put(label, new ResDevice(jarDir));
+    }
+
+    public static void createResDevice(Class<?> cls, String label, String jarDir){
+        devices.put(label, new ResDevice(cls, jarDir));
     }
 
     public static void createAbsDevice(){
