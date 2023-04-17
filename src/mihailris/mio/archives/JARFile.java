@@ -6,30 +6,29 @@ import mihailris.mio.MemoryDevice;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
+import java.util.jar.JarEntry;
+import java.util.jar.JarInputStream;
+import java.util.jar.JarOutputStream;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
-import java.util.zip.ZipOutputStream;
 
-public class ZIPFile {
+public class JARFile {
     /**
-     * Unzip all content from ZIP file to destination directory.
+     * Unzip all content from JAR file to destination directory.
      * Tries to delete unpacked files on exception
-     * @param source target ZIP file
+     * @param source target JAR file
      * @param dest destination directory
      * @throws IOException on I/O errors
      */
     public static void unpack(IOPath source, IOPath dest) throws IOException {
         try (InputStream input = Disk.read(source)) {
-            try (ZipInputStream zis = new ZipInputStream(input)) {
+            try (JarInputStream zis = new JarInputStream(input)) {
                 unpack(source, dest, zis);
             }
         }
     }
 
-    public static void unpack(IOPath source, IOPath dest, ZipInputStream zis) throws IOException {
+    public static void unpack(IOPath source, IOPath dest, JarInputStream zis) throws IOException {
         List<IOPath> created = new ArrayList<>();
         ZipEntry zipEntry = zis.getNextEntry();
         long available = Disk.getUsableSpace(dest);
@@ -96,10 +95,13 @@ public class ZIPFile {
         return device;
     }
 
-    private static void pack(IOPath base, IOPath source, ZipOutputStream zip) throws IOException {
+    private static void pack(IOPath base, IOPath source, JarOutputStream zip) throws IOException {
         if (source.isFile()) {
             String name = source.getPath().substring(base.getPath().length());
-            ZipEntry entry = new ZipEntry(name);
+            if (name.startsWith("/")) {
+                name = name.substring(1);
+            }
+            JarEntry entry = new JarEntry(name);
             zip.putNextEntry(entry);
             byte[] data = source.readBytes();
             zip.write(data, 0, data.length);
@@ -128,9 +130,9 @@ public class ZIPFile {
         } else {
             output = new FileOutputStream(jfile);
         }
-        ZipOutputStream zip = new ZipOutputStream(output);
+        JarOutputStream zip = new JarOutputStream(output);
         if (source.isFile()) {
-            ZipEntry entry = new ZipEntry(source.name());
+            JarEntry entry = new JarEntry(source.name());
             zip.putNextEntry(entry);
             byte[] data = source.readBytes();
             zip.write(data, 0, data.length);
