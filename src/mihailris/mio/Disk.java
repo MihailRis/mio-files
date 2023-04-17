@@ -197,6 +197,17 @@ public class Disk {
         String srcPath = src.getPath();
         String dstPath = dst.getPath();
 
+        if (src.isDirectory()) {
+            dst.mkdirs();
+            IOPath[] list = src.list();
+            if (list == null)
+                return;
+            for (IOPath file : list) {
+                copy(file, dst.child(file.name()));
+                return;
+            }
+        }
+
         if (deviceSrc == deviceDst) {
             deviceDst.copy(srcPath, dstPath);
         } else {
