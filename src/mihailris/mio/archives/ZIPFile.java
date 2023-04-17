@@ -132,5 +132,6 @@ public class ZIPFile {
         } else {
             pack(source, source, zip);
         }
+        zip.close();
     }
 }

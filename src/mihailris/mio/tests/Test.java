@@ -12,6 +12,6 @@ import java.util.zip.ZipEntry;
 public class Test {
     public static void main(String[] args) throws Exception {
         Disk.createDirDevice("local", new File("./"));
-        ZIPFile.unpack(IOPath.get("local:dread.jar"), IOPath.get("local:t"));
+        ZIPFile.pack(IOPath.get("local:t"), IOPath.get("local:new.jar"));
     }
 }
