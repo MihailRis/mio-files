@@ -38,12 +38,29 @@ public class ZIPFile {
                             throw new IOException("no enough space to unpack " + zipEntry.getName() +
                                     " (" + zipEntry.getSize() + " B)");
                         long size = zipEntry.getSize();
-                        byte[] bytes = new byte[(int) size];
-                        int offset = 0;
-                        while (offset < size) {
-                            offset += zis.read(bytes, offset, (int) (size - offset));
+                        if (size == -1) {
+                            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                            int offset = 0;
+                            byte[] buffer = new byte[1024];
+                            while (true) {
+                                int red = zis.read(buffer, offset, (int) (size - offset));
+                                if (red == -1)
+                                    break;
+                                baos.write(buffer, offset, red);
+                                offset += red;
+                            }
+                            element.write(baos.toByteArray());
+                        } else {
+                            byte[] bytes = new byte[(int) size];
+                            int offset = 0;
+                            while (offset < size) {
+                                int red = zis.read(bytes, offset, (int) (size - offset));
+                                if (red == -1)
+                                    break;
+                                offset += red;
+                            }
+                            element.write(bytes);
                         }
-                        element.write(bytes);
                         created.add(element);
                     } catch (IOException e) {
                         // Revert creations
