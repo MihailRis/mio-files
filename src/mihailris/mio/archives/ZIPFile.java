@@ -40,15 +40,14 @@ public class ZIPFile {
                         long size = zipEntry.getSize();
                         if (size == -1) {
                             ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                            int offset = 0;
                             byte[] buffer = new byte[1024];
                             while (true) {
-                                int red = zis.read(buffer, offset, (int) (size - offset));
+                                int red = zis.read(buffer, 0, buffer.length);
                                 if (red == -1)
                                     break;
-                                baos.write(buffer, offset, red);
-                                offset += red;
+                                baos.write(buffer, 0, red);
                             }
+                            element.parent().mkdirs();
                             element.write(baos.toByteArray());
                         } else {
                             byte[] bytes = new byte[(int) size];
