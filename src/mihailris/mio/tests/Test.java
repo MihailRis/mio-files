@@ -2,24 +2,16 @@ package mihailris.mio.tests;
 
 import mihailris.mio.Disk;
 import mihailris.mio.IOPath;
-import mihailris.mio.IOUtil;
+import mihailris.mio.IORandomAccess;
 import mihailris.mio.MemoryDevice;
-import mihailris.mio.archives.TARFile;
+import mihailris.mio.archives.ZIPFile;
 
 import java.io.File;
-import java.io.IOException;
+import java.util.zip.ZipEntry;
 
 public class Test {
-    public static void main(String[] args) throws IOException {
-        Disk.createAbsDevice();
-
-        File file = new File("test.tar");
-
-        MemoryDevice device = TARFile.createDevice(file);
-        Disk.addDevice("mem", device);
-
-        System.out.println(IOUtil.tree(IOPath.get("mem:")));
-        System.out.println(IOPath.get("mem:src/mihailris/mio/IODevice.java").readString());
-        Disk.close();
+    public static void main(String[] args) throws Exception {
+        Disk.createDirDevice("local", new File("./"));
+        ZIPFile.pack(IOPath.get("local:target"), IOPath.get("local:test.zip"));
     }
 }

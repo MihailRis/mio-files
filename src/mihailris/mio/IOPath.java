@@ -62,6 +62,13 @@ public class IOPath {
         return IOPath.get(path);
     }
 
+    public String localPath(String basePath) {
+        String local = path.substring(basePath.length());
+        if (local.startsWith("/"))
+            local = local.substring(1);
+        return local;
+    }
+
     /**
      * @return new parent node iopath
      */

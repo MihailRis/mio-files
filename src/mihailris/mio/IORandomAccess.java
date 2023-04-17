@@ -31,4 +31,34 @@ public interface IORandomAccess extends AutoCloseable {
     }
 
     void setLength(int size) throws IOException;
+
+    default short readShort() throws IOException {
+        int ch1 = read();
+        int ch2 = read();
+        if ((ch1 | ch2) < 0)
+            throw new EOFException();
+        return (short)((ch1 << 8) + (ch2));
+    }
+
+    default int readInt() throws IOException {
+        int ch1 = read();
+        int ch2 = read();
+        int ch3 = read();
+        int ch4 = read();
+        if ((ch1 | ch2 | ch3 | ch4) < 0)
+            throw new EOFException();
+        return ((ch1 << 24) + (ch2 << 16) + (ch3 << 8) + (ch4));
+    }
+
+    default void writeShort(int value) throws IOException {
+        write((value >> 8) & 0xFF);
+        write((value) & 0xFF);
+    }
+
+    default void writeInt(int value) throws IOException {
+        write((value >> 24) & 0xFF);
+        write((value >> 16) & 0xFF);
+        write((value >> 8) & 0xFF);
+        write((value) & 0xFF);
+    }
 }
