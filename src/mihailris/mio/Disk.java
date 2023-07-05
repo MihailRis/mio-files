@@ -204,8 +204,8 @@ public class Disk {
                 return;
             for (IOPath file : list) {
                 copy(file, dst.child(file.name()));
-                return;
             }
+            return;
         }
 
         if (deviceSrc == deviceDst) {
