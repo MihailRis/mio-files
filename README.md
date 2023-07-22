@@ -61,9 +61,9 @@ Add custom IODevice:
 ```java
 Disk.addDevice("name", new ...);
 ```
-Remove IODevice from Disk (does not affect real files):
+Close and remove IODevice from Disk (does not affect real files):
 ```java
-Disk.removeDevice("user");
+Disk.closeDevice("user");
 ```
 
 Add IODevice temporary to use with Disk:
