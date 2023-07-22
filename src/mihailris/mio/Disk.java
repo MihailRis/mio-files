@@ -13,7 +13,7 @@ public class Disk {
     private static long TEMP_ID = 0;
     public static final int VERSION_MAJOR = 2;
     public static final int VERSION_MINOR = 3;
-    public static final int VERSION_PATCH = 2;
+    public static final int VERSION_PATCH = 3;
     public static final String VERSION_STRING = VERSION_MAJOR+"."+VERSION_MINOR+"."+VERSION_PATCH;
     public static long totalRead;
     public static long totalWrite;
@@ -51,8 +51,15 @@ public class Disk {
         }
     }
 
-    public static void removeDevice(String label){
-        devices.remove(label);
+    public static void closeDevice(String label){
+        IODevice device = devices.remove(label);
+        if (device != null) {
+            try {
+                device.close();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     public static void createResDevice(String label, String jarDir){
@@ -373,7 +380,7 @@ public class Disk {
 
         @Override
         public void close() throws IOException {
-            Disk.removeDevice(label);
+            Disk.closeDevice(label);
         }
     }
 }
