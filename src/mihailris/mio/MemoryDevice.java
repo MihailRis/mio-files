@@ -68,6 +68,8 @@ public class MemoryDevice extends IODeviceAdapter {
 
     @Override
     public boolean mkdirs(String path) {
+        if (path.isEmpty())
+            return false;
         String[] elements = path.split("/");
         Node node = root;
         for (String element : elements) {

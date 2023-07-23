@@ -2,17 +2,16 @@ package mihailris.mio.tests;
 
 import mihailris.mio.Disk;
 import mihailris.mio.IOPath;
-import mihailris.mio.IORandomAccess;
-import mihailris.mio.MemoryDevice;
-import mihailris.mio.archives.JARFile;
-import mihailris.mio.archives.ZIPFile;
+import mihailris.mio.IOUtil;
 
 import java.io.File;
-import java.util.zip.ZipEntry;
 
 public class Test {
     public static void main(String[] args) throws Exception {
         Disk.createDirDevice("local", new File("./"));
-        JARFile.pack(IOPath.get("local:t"), IOPath.get("local:new.jar"));
+        Disk.createMemoryDevice("memory");
+
+        Disk.copy(IOPath.get("local:src"), IOPath.get("memory:"));
+        System.out.println(IOUtil.tree(IOPath.get("memory:")));
     }
 }

@@ -53,7 +53,7 @@ public class IOUtil {
 
     private static void tree(IOPath root, StringBuilder builder, int indent) {
         for (int i = 0; i < indent; i++) {
-            builder.append("\t");
+            builder.append("  ");
         }
         builder.append(root.name());
         if (root.isDirectory()) {
