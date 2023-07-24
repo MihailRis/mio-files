@@ -57,7 +57,7 @@ public class IOUtil {
         }
         builder.append(root.name());
         if (root.isDirectory()) {
-            builder.append(":");
+            builder.append("/");
             IOPath[] files = root.list();
             if (files.length == 0) {
                 builder.append(" empty");
