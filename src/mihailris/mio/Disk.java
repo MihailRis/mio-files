@@ -231,6 +231,7 @@ public class Disk {
                 IOUtil.transfer(input, output, length);
             }
         }
+        dst.setLastModified(src.lastModified());
     }
 
     public static void move(IOPath src, IOPath dst) throws IOException {

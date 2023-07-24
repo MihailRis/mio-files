@@ -36,6 +36,7 @@ public interface IODevice extends ReadDevice, Closeable {
                 IOUtil.transfer(input, output, length);
             }
         }
+        setLastModified(dst, lastModified(src));
     }
 
     // Special
