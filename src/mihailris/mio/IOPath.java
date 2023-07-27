@@ -59,7 +59,7 @@ public class IOPath {
         if (!path.endsWith("/") && !path.endsWith(":"))
             path += "/";
         path += node;
-        return IOPath.get(path);
+        return new IOPath(path);
     }
 
     public String localPath(String basePath) {

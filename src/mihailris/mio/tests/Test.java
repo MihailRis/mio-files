@@ -8,10 +8,12 @@ import java.io.File;
 
 public class Test {
     public static void main(String[] args) throws Exception {
-        Disk.createDirDevice("local", new File("./"));
-        Disk.createMemoryDevice("memory");
+        Disk.createAbsDevice();
 
-        Disk.copy(IOPath.get("local:src"), IOPath.get("memory:"));
-        System.out.println(IOUtil.tree(IOPath.get("memory:")));
+        IOPath root = Disk.absolute("/home/ubuntu");
+        IOPath[] files = root.list();
+        for (IOPath file : files) {
+            System.out.println(file);
+        }
     }
 }
