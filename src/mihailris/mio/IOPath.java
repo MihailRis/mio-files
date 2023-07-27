@@ -80,7 +80,7 @@ public class IOPath {
         } else {
             path = path.substring(0, index);
         }
-        return IOPath.get(path);
+        return new IOPath(path);
     }
 
     public IOPath cpy(){
@@ -199,7 +199,7 @@ public class IOPath {
     }
 
     public IOPath extended(String ext) {
-        return IOPath.get(path+ext);
+        return new IOPath(path+ext);
     }
 
     public void write(String string) {
