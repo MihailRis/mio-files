@@ -99,6 +99,8 @@ public class Disk {
     }
 
     public static IOPath absolute(String path){
+        if (path.startsWith("/"))
+            path = path.substring(1);
         return new IOPath("abs", path);
     }
 
