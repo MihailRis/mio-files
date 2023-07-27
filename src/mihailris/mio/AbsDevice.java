@@ -1,6 +1,8 @@
 package mihailris.mio;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 /**
  * Absolute paths device works with whole filesystem
@@ -18,11 +20,12 @@ public class AbsDevice extends IODeviceAdapter {
 
     @Override
     public InputStream read(String path) throws IOException {
-        return new FileInputStream(path);
+        return Files.newInputStream(Paths.get(path));
     }
 
     @Override
     public OutputStream write(String path, boolean append) throws IOException {
+        path = path.isEmpty() ? "/" : path;
         File file = getFile(path);
         if (!file.isFile()) {
             //noinspection ResultOfMethodCallIgnored
@@ -37,16 +40,23 @@ public class AbsDevice extends IODeviceAdapter {
     }
 
     @Override
-    public IOPath[] listDir(IOPath path) {
-        String[] names = new File(path.getPath()).list();
+    public IOPath[] listDir(IOPath iopath) {
+        String path = toPath(iopath);
+        String[] names = new File(path).list();
         if (names == null)
             return null;
-        IOPath[]paths = new IOPath[names.length];
+        IOPath[] paths = new IOPath[names.length];
         for (int i = 0; i < names.length; i++) {
-            IOPath newpath = path.cpy().child(names[i]);
+            IOPath newpath = iopath.cpy().child(names[i]);
             paths[i] = newpath;
         }
         return paths;
+    }
+
+    private String toPath(IOPath iopath) {
+        String path = iopath.getPath();
+        if (path.isEmpty()) path = "/";
+        return path;
     }
 
     @Override
@@ -97,6 +107,7 @@ public class AbsDevice extends IODeviceAdapter {
 
     @Override
     public File getFile(String path) {
+        path = path.isEmpty() ? "/" : path;
         return new File(path);
     }
 
