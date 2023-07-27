@@ -15,17 +15,19 @@ public class AbsDevice extends IODeviceAdapter {
 
     @Override
     public long getUsableSpace(String path) {
+        path = toPath(path);
         return new File(path).getUsableSpace();
     }
 
     @Override
     public InputStream read(String path) throws IOException {
+        path = toPath(path);
         return Files.newInputStream(Paths.get(path));
     }
 
     @Override
     public OutputStream write(String path, boolean append) throws IOException {
-        path = path.isEmpty() ? "/" : path;
+        path = toPath(path);
         File file = getFile(path);
         if (!file.isFile()) {
             //noinspection ResultOfMethodCallIgnored
@@ -36,6 +38,7 @@ public class AbsDevice extends IODeviceAdapter {
 
     @Override
     public long length(String path) {
+        path = toPath(path);
         return getFile(path).length();
     }
 
@@ -55,37 +58,48 @@ public class AbsDevice extends IODeviceAdapter {
 
     private String toPath(IOPath iopath) {
         String path = iopath.getPath();
-        if (path.isEmpty()) path = "/";
+        return toPath(path);
+    }
+
+    private String toPath(String path) {
+        if (!path.startsWith("/"))
+            return "/"+path;
         return path;
     }
 
     @Override
     public long lastModified(String path) {
+        path = toPath(path);
         return new File(path).lastModified();
     }
 
     @Override
     public boolean setLastModified(String path, long lastModified) {
+        path = toPath(path);
         return new File(path).setLastModified(lastModified);
     }
 
     @Override
     public boolean exists(String path) {
+        path = toPath(path);
         return new File(path).exists();
     }
 
     @Override
     public boolean isFile(String path) {
+        path = toPath(path);
         return new File(path).isFile();
     }
 
     @Override
     public boolean isDirectory(String path) {
+        path = toPath(path);
         return new File(path).isDirectory();
     }
 
     @Override
     public boolean isLink(String path) {
+        path = toPath(path);
         File file = new File(path);
         try {
             return !file.getCanonicalPath().equals(file.getAbsolutePath());
@@ -96,23 +110,27 @@ public class AbsDevice extends IODeviceAdapter {
 
     @Override
     public boolean mkdirs(String path) {
+        path = toPath(path);
         return new File(path).mkdirs();
     }
 
     @Override
     public boolean delete(String path) {
+        path = toPath(path);
         File file = new File(path);
         return file.delete();
     }
 
     @Override
     public File getFile(String path) {
+        path = toPath(path);
         path = path.isEmpty() ? "/" : path;
         return new File(path);
     }
 
     @Override
     public IORandomAccess openRandomAccess(String path, boolean writeable) throws IOException {
+        path = toPath(path);
         return new IORandomAccessFile(new File(path), "rw");
     }
 }
