@@ -76,7 +76,7 @@ public class IOPath {
         String path = this.path;
         int index = path.lastIndexOf('/');
         if (index == -1){
-            path = getPrefix();
+            path = getPrefix()+':';
         } else {
             path = path.substring(0, index);
         }

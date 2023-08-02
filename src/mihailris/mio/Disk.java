@@ -12,8 +12,8 @@ import java.util.Properties;
 public class Disk {
     private static long TEMP_ID = 0;
     public static final int VERSION_MAJOR = 2;
-    public static final int VERSION_MINOR = 3;
-    public static final int VERSION_PATCH = 4;
+    public static final int VERSION_MINOR = 4;
+    public static final int VERSION_PATCH = 0;
     public static final String VERSION_STRING = VERSION_MAJOR+"."+VERSION_MINOR+"."+VERSION_PATCH;
     public static long totalRead;
     public static long totalWrite;
@@ -200,6 +200,10 @@ public class Disk {
     }
 
     public static void copy(IOPath src, IOPath dst) throws IOException {
+        copy(src, dst, CollisionSolver.ERROR);
+    }
+
+    public static void copy(IOPath src, IOPath dst, CollisionSolver collisionSolver) throws IOException {
         IODevice deviceSrc = getDevice(src.getPrefix(), true);
         IODevice deviceDst = getDevice(dst.getPrefix(), false);
 
@@ -212,21 +216,25 @@ public class Disk {
             if (list == null)
                 return;
             for (IOPath file : list) {
-                copy(file, dst.child(file.name()));
+                copy(file, dst.child(file.name()), collisionSolver);
             }
             return;
         }
 
         if (deviceSrc == deviceDst) {
-            deviceDst.copy(srcPath, dstPath);
+            if (!dst.isFile() || collisionSolver.solve(dst, src)) {
+                deviceDst.copy(srcPath, dstPath);
+            }
         } else {
-            copy(deviceSrc, deviceDst, src, dst);
+            copy(deviceSrc, deviceDst, src, dst, collisionSolver);
         }
     }
 
-    private static void copy(IODevice deviceSrc, IODevice deviceDst, IOPath src, IOPath dst) throws IOException {
-        if (isFile(dst))
-            throw new IOException("destination file is already exists");
+    private static void copy(IODevice deviceSrc,
+                             IODevice deviceDst,
+                             IOPath src, IOPath dst, CollisionSolver collisionSolver) throws IOException {
+        if (isFile(dst) && !collisionSolver.solve(dst, src))
+            return;
         long length = length(src);
         try (OutputStream output = deviceDst.write(dst.getPath(), false)) {
             try (InputStream input = deviceSrc.read(src.getPath())) {
@@ -237,6 +245,10 @@ public class Disk {
     }
 
     public static void move(IOPath src, IOPath dst) throws IOException {
+        move(src, dst, CollisionSolver.ERROR);
+    }
+
+    public static void move(IOPath src, IOPath dst, CollisionSolver collisionSolver) throws IOException {
         IODevice deviceSrc = getDevice(src.getPrefix(), true);
         IODevice deviceDst = getDevice(dst.getPrefix(), false);
 
@@ -245,7 +257,7 @@ public class Disk {
             String dstPath = dst.getPath();
             deviceDst.move(srcPath, dstPath);
         } else {
-            copy(deviceSrc, deviceDst, src, dst);
+            copy(deviceSrc, deviceDst, src, dst, collisionSolver);
             delete(src);
         }
     }

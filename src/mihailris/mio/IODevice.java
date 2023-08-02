@@ -26,8 +26,6 @@ public interface IODevice extends ReadDevice, Closeable {
     default void copy(String src, String dst) throws IOException {
         if (isReadonly())
             throw new IOException("device is readonly");
-        if (isFile(dst))
-            throw new IOException("destination file is already exists");
         if (src.equals(dst))
             return;
         long length = length(src);

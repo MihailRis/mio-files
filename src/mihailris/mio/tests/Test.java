@@ -9,7 +9,7 @@ public class Test {
     public static void main(String[] args) throws Exception {
         Disk.createAbsDevice();
 
-        IOPath root = Disk.absolute("bin");
+        IOPath root = Disk.absolute("");
         System.out.println(Arrays.toString(root.list()));
     }
 }
